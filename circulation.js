@@ -22,7 +22,7 @@
     ["TBW", 52.2923388, 4.9627197]
   ];
 
-  // Add markers to map
+  // add markers to map
   function addMarkers(map, locations){
     
     /*//Initialize marker symbol https://developers.google.com/maps/documentation/javascript/examples/icon-complex
@@ -53,23 +53,9 @@
     }  
   }
 
-  function getData(file){
-    var data;
-    
-    d3.json(file, function(error, json) {
-      if (error) return console.warn(error);
-      data = json;
-      console.log(data);
-      });
-
-    console.log(data);
-
-    return data;
-  }
-
   //Create table from data (source: http://bl.ocks.org/d3noob/5d47df5374d210b6f651)
   function tabulate(data, columns) {
-    var table = d3.select("body").append("table")
+    var table = d3.select("#tables").append("table")
             .attr("style", "margin-left: 200px")
             .style("border-collapse", "collapse")// <= Add this line in
             .style("border", "2px black solid"), // <= Add this line in
@@ -104,20 +90,27 @@
     
     return table;
 }
-  
+
+// start!
+
+  // create google map
+  google.maps.event.addDomListener(window, 'load', initialize);
+
   queue()
     .defer(d3.json, 'teststudent.json') // topojson polygons
     .defer(d3.json, 'testbook.json') // geojson points
-    .await(function(error, file1, file2) { console.log(file1, file2); });
+    .awaitAll(ready);
 
-  //Create google map
-  google.maps.event.addDomListener(window, 'load', initialize);
- 
- /* // getData
-  var data_student = getData("teststudent.json");
-  var data_book = getData("testbook.json");
-  console.log(data_student);
-  console.log(data_book);
-  // render the table
-  var studentTable = tabulate(data_student, ["StudentID", "Date", "Time", "Title", "Barcode","Action","DueDate","Location"]);
-  var bookTable = tabulate(data_book, ["User", "Date", "Time", "Title", "Barcode","Action","DueDate","Location"])
+  function ready(error, results){
+    // load data
+    var data_student = results[0];
+    var data_books = results[1];
+    console.log(data_student);
+    console.log(data_books);
+
+    // create tables
+    var studentTable = tabulate(data_student, ["StudentID", "Date", "Time", "Title", "Barcode","Action","DueDate","Location"]);
+    var bookTable = tabulate(data_books, ["User", "Date", "Time", "Title", "Barcode","Action","DueDate","Location"]);
+  }
+  
+  

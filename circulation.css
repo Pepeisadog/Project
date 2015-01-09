@@ -13,6 +13,11 @@ h2{
 	text-align: center;
 }
 
+td, th {
+    padding: 1px 4px;
+    border: 1px black solid;
+}
+
 #locations{
     border: 1px solid red;
     overflow: auto;
@@ -34,13 +39,11 @@ h2{
 	border: 1px solid green;
 }
 
-#collection{
+#tables{
 	height: 600px;
 	border: 1px solid blue;
 }
 
-#table_id{
 
-}
 
 
