@@ -53,14 +53,16 @@
     }  
   }
 
-  function getData(filename){
+  function getData(file){
     var data;
-   
-    d3.json("filename", function(error, json) {
+    
+    d3.json(file, function(error, json) {
       if (error) return console.warn(error);
       data = json;
       console.log(data);
       });
+
+    console.log(data);
 
     return data;
   }
@@ -102,13 +104,20 @@
     
     return table;
 }
-
   
+  queue()
+    .defer(d3.json, 'teststudent.json') // topojson polygons
+    .defer(d3.json, 'testbook.json') // geojson points
+    .await(function(error, file1, file2) { console.log(file1, file2); });
+
   //Create google map
   google.maps.event.addDomListener(window, 'load', initialize);
-  // getData
-  data_student = getData("teststudent.json");
-  data_book = getData("testbook.json");
+ 
+ /* // getData
+  var data_student = getData("teststudent.json");
+  var data_book = getData("testbook.json");
+  console.log(data_student);
+  console.log(data_book);
   // render the table
-  var studentTable = tabulate(data, ["StudentID", "Date", "Time", "Title", "Barcode","Action","DueDate","Location"]);
-  var bookTable = tabulate(data, ["User", "Date", "Time", "Title", "Barcode","Action","DueDate","Location"])
+  var studentTable = tabulate(data_student, ["StudentID", "Date", "Time", "Title", "Barcode","Action","DueDate","Location"]);
+  var bookTable = tabulate(data_book, ["User", "Date", "Time", "Title", "Barcode","Action","DueDate","Location"])
