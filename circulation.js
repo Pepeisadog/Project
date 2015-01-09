@@ -1,6 +1,6 @@
 "use strict"
-  
-  //Initialize map
+
+  //Initialize google map
   function initialize() {
     var mapOptions = {
       center: { lat: 52.3747158, lng: 4.8986231},
@@ -11,10 +11,6 @@
         mapOptions);
 
     addMarkers(map, Libraries);
-
-    $(document).ready( function () {
-        $('#table_id').DataTable();
-    } );
   }
 
   var Libraries = [
@@ -26,6 +22,7 @@
     ["TBW", 52.2923388, 4.9627197]
   ];
 
+  // Add markers to map
   function addMarkers(map, locations){
     
     /*//Initialize marker symbol https://developers.google.com/maps/documentation/javascript/examples/icon-complex
@@ -56,4 +53,62 @@
     }  
   }
 
+  function getData(filename){
+    var data;
+   
+    d3.json("filename", function(error, json) {
+      if (error) return console.warn(error);
+      data = json;
+      console.log(data);
+      });
+
+    return data;
+  }
+
+  //Create table from data (source: http://bl.ocks.org/d3noob/5d47df5374d210b6f651)
+  function tabulate(data, columns) {
+    var table = d3.select("body").append("table")
+            .attr("style", "margin-left: 200px")
+            .style("border-collapse", "collapse")// <= Add this line in
+            .style("border", "2px black solid"), // <= Add this line in
+        thead = table.append("thead"),
+        tbody = table.append("tbody");
+
+    // append the header row
+    thead.append("tr")
+        .selectAll("th")
+        .data(columns)
+        .enter()
+        .append("th")
+            .text(function(column) { return column; });
+
+    // create a row for each object in the data
+    var rows = tbody.selectAll("tr")
+        .data(data)
+        .enter()
+        .append("tr");
+
+    // create a cell in each row for each column
+    var cells = rows.selectAll("td")
+        .data(function(row) {
+            return columns.map(function(column) {
+                return {column: column, value: row[column]};
+            });
+        })
+        .enter()
+        .append("td")
+        .attr("style", "font-family: Courier") // sets the font style
+            .html(function(d) { return d.value; });
+    
+    return table;
+}
+
+  
+  //Create google map
   google.maps.event.addDomListener(window, 'load', initialize);
+  // getData
+  data_student = getData("teststudent.json");
+  data_book = getData("testbook.json");
+  // render the table
+  var studentTable = tabulate(data, ["StudentID", "Date", "Time", "Title", "Barcode","Action","DueDate","Location"]);
+  var bookTable = tabulate(data, ["User", "Date", "Time", "Title", "Barcode","Action","DueDate","Location"])
