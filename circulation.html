@@ -7,9 +7,15 @@
 
     <!-- load the d3.js library -->  
     <script src="d3.v3.js"></script>
-
+    <!-- load jquery library -->
+    <script src="jquery-1.11.1.js"></script>
+    <!-- load dataTables library -->
+    <script src="jquery.dataTables.js"></script>
     <!-- load the queue library -->
     <script src="queue.v1.js"></script>
+
+    <!-- link to dataTables styling sheet -->
+    <link rel="stylesheet" type="text/css" href="//cdn.datatables.net/1.10.4/css/jquery.dataTables.min.css"/>
   
     <!-- Google Maps API -->
     <script type="text/javascript"
@@ -31,8 +37,32 @@
       <div id="map-canvas"></div>
     </div>
 
-    <div id="tables">
-      <h2> Book History </h2>
+    <div id="collection">
+      <h2> Collection </h2>
+
+      <!-- source: http://clagnut.com/sandbox/csstabs/?writingtext=csstabs -->
+      <ul id="globalnav">
+        <li><a href="#" class="here">AMFI</a>
+          <ul>
+            <li><a href="#">All</a></li>
+            <li><a href="#">Most Popular</a></li>
+          </ul>
+        </li>
+        <li><a href="#">DML</a></li>
+        <li><a href="#">FB</a></li>
+        <li><a href="#">KSH</a></li>
+        <li><a href="#">LWB</a></li>
+        <li><a href="#">TBW</a></li>   
+      </ul>
+
+    </div>
+
+    <div id="studhist">
+      <h2> Student Circulation History </h2>
+    </div>
+
+    <div id="bookhist">
+      <h2> Book Circulation History </h2>
     </div>
 
   </body>

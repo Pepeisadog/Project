@@ -54,13 +54,61 @@
   }
 
   //Create table from data (source: http://bl.ocks.org/d3noob/5d47df5374d210b6f651)
-  function tabulate(data, columns) {
-    var table = d3.select("#tables").append("table")
-            .attr("style", "margin-left: 200px")
+  function tabColl(data, columns) {
+    var table = d3.select("#collection").append("table")
+            .attr("id", "CollTable")
+            .attr("class","table"),
+        thead = table.append("thead"),
+        tbody = table.append("tbody"),
+        tfoot = table.append("tfoot");
+
+    // append the header row
+    thead.append("tr")
+        .selectAll("th")
+        .data(columns)
+        .enter()
+        .append("th")
+            .text(function(column) { return column; });
+
+    // create a row for each object in the data
+    var rows = tbody.selectAll("tr")
+        .data(data)
+        .enter()
+        .append("tr");
+
+    // create a cell in each row for each column
+    var cells = rows.selectAll("td")
+        .data(function(row) {
+            return columns.map(function(column) {
+                return {column: column, value: row[column]};
+            });
+        })
+        .enter()
+        .append("td")
+        .attr("style", "font-family: Courier") // sets the font style
+            .html(function(d) { return d.value; });
+
+    // append the footer row
+    tfoot.append("tr")
+        .selectAll("th")
+        .data(columns)
+        .enter()
+        .append("th")
+            .text(function(column) { return column; });        
+
+    return table;
+  }
+
+  //Create table from data (source: http://bl.ocks.org/d3noob/5d47df5374d210b6f651)
+  function tabStud(data, columns) {
+    var table = d3.select("#studhist").append("table")
+            .attr("id", "StudTable")
+            .attr("class","table")
             .style("border-collapse", "collapse")// <= Add this line in
             .style("border", "2px black solid"), // <= Add this line in
         thead = table.append("thead"),
-        tbody = table.append("tbody");
+        tbody = table.append("tbody"),
+        tfoot = table.append("tfoot");
 
     // append the header row
     thead.append("tr")
@@ -88,6 +136,61 @@
         .attr("style", "font-family: Courier") // sets the font style
             .html(function(d) { return d.value; });
     
+    // append the footer row
+    tfoot.append("tr")
+        .selectAll("th")
+        .data(columns)
+        .enter()
+        .append("th")
+            .text(function(column) { return column; });        
+
+    return table;
+  }
+
+  //Create table from data (source: http://bl.ocks.org/d3noob/5d47df5374d210b6f651)
+  function tabBook(data, columns) {
+    var table = d3.select("#bookhist").append("table")
+            .attr("id", "BookTable")
+            .attr("class","table")
+            .style("border-collapse", "collapse")// <= Add this line in
+            .style("border", "2px black solid"), // <= Add this line in
+        thead = table.append("thead"),
+        tbody = table.append("tbody"),
+        tfoot = table.append("tfoot");
+
+    // append the header row
+    thead.append("tr")
+        .selectAll("th")
+        .data(columns)
+        .enter()
+        .append("th")
+            .text(function(column) { return column; });
+
+    // create a row for each object in the data
+    var rows = tbody.selectAll("tr")
+        .data(data)
+        .enter()
+        .append("tr");
+
+    // create a cell in each row for each column
+    var cells = rows.selectAll("td")
+        .data(function(row) {
+            return columns.map(function(column) {
+                return {column: column, value: row[column]};
+            });
+        })
+        .enter()
+        .append("td")
+        .attr("style", "font-family: Courier") // sets the font style
+            .html(function(d) { return d.value; });
+
+    // append the footer row
+    tfoot.append("tr")
+        .selectAll("th")
+        .data(columns)
+        .enter()
+        .append("th")
+            .text(function(column) { return column; });    
     return table;
 }
 
@@ -109,8 +212,12 @@
     console.log(data_books);
 
     // create tables
-    var studentTable = tabulate(data_student, ["StudentID", "Date", "Time", "Title", "Barcode","Action","DueDate","Location"]);
-    var bookTable = tabulate(data_books, ["User", "Date", "Time", "Title", "Barcode","Action","DueDate","Location"]);
+    var studentTable = tabStud(data_student, ["StudentID", "Date", "Time", "Title", "Barcode","Action","DueDate","Location"]);
+    var bookTable = tabBook(data_books, ["User", "Date", "Time", "Title", "Barcode","Action","DueDate","Location"]);
+
+    $(document).ready(function() {
+    $('.table').DataTable();
+} );
   }
   
   
