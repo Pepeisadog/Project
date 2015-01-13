@@ -56,8 +56,7 @@
   //Create table from data (source: http://bl.ocks.org/d3noob/5d47df5374d210b6f651)
   function tabColl(data, columns) {
     var table = d3.select("#collection").append("table")
-            .attr("id", "CollTable")
-            .attr("class","table"),
+            .attr("id", "collection"),
         thead = table.append("thead"),
         tbody = table.append("tbody"),
         tfoot = table.append("tfoot");
@@ -200,24 +199,28 @@
   google.maps.event.addDomListener(window, 'load', initialize);
 
   queue()
-    .defer(d3.json, 'teststudent.json') // topojson polygons
-    .defer(d3.json, 'testbook.json') // geojson points
+    .defer(d3.json, 'teststudent.json') 
+    .defer(d3.json, 'testbook.json') 
+    .defer(d3.json, '/Books/FM003117.json')
     .awaitAll(ready);
 
   function ready(error, results){
     // load data
     var data_student = results[0];
     var data_books = results[1];
-    console.log(data_student);
-    console.log(data_books);
+    var data_coll = [results[2]];
+    console.log(data_coll);
 
     // create tables
     var studentTable = tabStud(data_student, ["StudentID", "Date", "Time", "Title", "Barcode","Action","DueDate","Location"]);
     var bookTable = tabBook(data_books, ["User", "Date", "Time", "Title", "Barcode","Action","DueDate","Location"]);
+    var CollTable = tabColl(data_coll,["Callnumber","Barcode","Title","Year","Location"]);
 
     $(document).ready(function() {
     $('.table').DataTable();
-} );
+      stateSave: true
+      pagingType: "full_numbers"
+    } );
   }
   
   
