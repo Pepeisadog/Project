@@ -1,0 +1,24 @@
+{
+  "name": "Bibliotheek HvA",
+  "children":[
+  {
+    "name":"KSH",
+    "children":[
+      {"name":"Math"},
+      {"name":"Philosophy"}
+    ]
+  },
+  {
+    "name":"AMFI",
+    "children":[
+    {
+      "name":"Research Methods",
+      "children":[
+        {"name":"Foundations of futures studies"}
+	    ]
+    },
+    {"name":"Pop Culture"}
+    ]
+  }
+  ]
+}

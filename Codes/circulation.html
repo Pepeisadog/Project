@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <title> Circulation </title>
+
+    <!-- link to styling sheets -->
+    <link rel="stylesheet" type="text/css" href="//cdn.datatables.net/1.10.4/css/jquery.dataTables.min.css"/>
+    <link rel="stylesheet" type="text/css" href="circulation.css"/>
+
+    <!-- load the d3.js library -->  
+    <script src="d3.v3.js"></script>
+    <!-- load jquery library -->
+    <script src="//code.jquery.com/jquery-1.11.1.min.js"></script>
+    <!-- load dataTables library -->
+    <script src="//cdn.datatables.net/1.10.4/js/jquery.dataTables.min.js"></script>
+    <!-- load the queue library -->
+    <script src="queue.v1.js"></script>
+  
+    <!-- Google Maps API -->
+    <script type="text/javascript"
+      src="https://maps.googleapis.com/maps/api/js?key=AIzaSyBonUqsIp_HKvYaObfIFMkHB1D2N66E9dI">
+    </script>
+    
+    <!-- link to javascript-->
+    <script src="circulation.js"></script>
+  </head>
+
+  <body>
+  
+    <header>
+      Circulation
+    </header>
+
+    <div id="locations">
+      Description Locations
+      <div id="map-canvas"></div>
+    </div>
+
+    <div id="collection">
+      <h2> Collection </h2>
+      <div id="navigation">
+        <ul>
+          <li>
+            <a id="tab1" class> AMFI </a>
+          </li>
+          <li>
+            <a id="tab2" class> DML </a>
+          </li>
+          <li>
+            <a id="tab3" class> FB </a>
+          </li>
+          <li>
+            <a id="tab4" class> KSH </a>
+          </li>
+          <li>
+            <a id="tab5" class> LWB </a>
+          </li>
+          <li>
+            <a id="tab6" class> TBW </a>
+          </li>
+        </ul>
+      </div>
+
+    </div>
+
+    <div id="studhist">
+      <h2> Student Circulation History </h2>
+    </div>
+
+    <div id="bookhist">
+      <h2> Book Circulation History </h2>
+    </div>
+
+  </body>
+</html>
