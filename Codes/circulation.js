@@ -146,6 +146,11 @@
     return table;
   }
 
+  // div_list = ["#table1","#table2"]; 
+  // for( var i = 0; i <div_list.length; i++){
+  //  function tabBook
+  }
+
   //Create table from data (source: http://bl.ocks.org/d3noob/5d47df5374d210b6f651)
   function tabBook(data, columns) {
     var table = d3.select("#bookhist").append("table")
@@ -199,8 +204,8 @@
   google.maps.event.addDomListener(window, 'load', initialize);
 
   queue()
-    .defer(d3.json, 'teststudent.json') 
-    .defer(d3.json, 'testbook.json') 
+    .defer(d3.json, '../Data/teststudent.json') 
+    .defer(d3.json, '../Data/testbook.json') 
     .awaitAll(ready);
 
   function ready(error, results){
@@ -208,19 +213,19 @@
     // load data
     var data_student = results[0];
     var data_books = results[1];
-    var data_coll = [results[2]];
-    console.log(data_coll);
+    
+
 
     // create tables
     var studentTable = tabStud(data_student, ["StudentID", "Date", "Time", "Title", "Barcode","Action","DueDate","Location"]);
     var bookTable = tabBook(data_books, ["User", "Date", "Time", "Title", "Barcode","Action","DueDate","Location"]);
     //var CollTable = tabColl(data_coll,["Callnumber","Barcode","Title","Year","Location"]);
 
-    //$(document).ready(function() {
-    //$('.table').DataTable();
-    //  stateSave: true
-    //  pagingType: "full_numbers"
-    //} );
+    $(document).ready(function() {
+    $('.table').DataTable();
+      stateSave: true
+      pagingType: "full_numbers"
+    } );
   }
   
   

@@ -1,9 +1,9 @@
 {
   "name": "Bibliotheek HvA",
-  "children":[
+  "children": [
   {
     "name":"KSH",
-    "children":[
+    "children": [
       {"name":"Math"},
       {"name":"Philosophy"}
     ]
@@ -13,7 +13,7 @@
     "children":[
     {
       "name":"Research Methods",
-      "children":[
+      "children": [
         {"name":"Foundations of futures studies"}
 	    ]
     },
