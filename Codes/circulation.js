@@ -23,7 +23,7 @@
   ];
 
   // add markers to map
-  function addMarkers(map, locations){
+  function addMarkers(map, Locations){
     
     /*//Initialize marker symbol https://developers.google.com/maps/documentation/javascript/examples/icon-complex
     var image = {
@@ -149,7 +149,7 @@
   // div_list = ["#table1","#table2"]; 
   // for( var i = 0; i <div_list.length; i++){
   //  function tabBook
-  }
+  //}
 
   //Create table from data (source: http://bl.ocks.org/d3noob/5d47df5374d210b6f651)
   function tabBook(data, columns) {

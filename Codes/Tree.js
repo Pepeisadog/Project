@@ -33,23 +33,23 @@ var data = [
   }
   ]
 }];
-console.log(data);
 
 // book circulation data
 var dataBook = [
   {
     "User":"CIRCAMFI",
-    "Date":"8-1-2015",
+    "Date":"08-01-2015",
     "Time":"11:02",
     "Title":"Foundations of futures studies",
     "Barcode":"HV008698",
     "Action":"IntIBL",
     "DueDate":"none",
-    "Location":"AMFI"
+    "Location":"AMFI",
+
   },
   {
     "User":"CIRCKSH",
-    "Date":"7-1-2015",
+    "Date":"07-01-2015",
     "Time":"16:43",
     "Title":"Foundations of futures studies",
     "Barcode":"HV008698",
@@ -59,7 +59,7 @@ var dataBook = [
   },
   {
     "User":"Student",
-    "Date":"7-1-2015",
+    "Date":"07-01-2015",
     "Time":"16:43",
     "Title":"Foundations of futures studies",
     "Barcode":"HV008698",
@@ -89,7 +89,7 @@ var dataBook = [
   },
   {
     "User":"Student",
-    "Date":"17-7-2014",
+    "Date":"17-07-2014",
     "Time":"13:11",
     "Title":"Foundations of futures studies",
     "Barcode":"HV008698",
@@ -99,7 +99,7 @@ var dataBook = [
   },
   {
     "User":"Student",
-    "Date":"5-7-2014",
+    "Date":"05-07-2014",
     "Time":"11:39",
     "Title":"Foundations of futures studies",
     "Barcode":"HV008698",
@@ -108,6 +108,8 @@ var dataBook = [
     "Location":"AMFI"
   }
 ];
+
+console.log(dataBook);
 
 function onload(){
 
@@ -123,15 +125,16 @@ function onload(){
 	// draw tree
 	drawTree(tree, root, canvas, i, diagonal);
 
+	//draw graph
+	drawGraph(dataBook);
+
 	// draw table
 	tabBook(dataBook,["User", "Date", "Time", "Title", "Barcode","Action","DueDate","Location"]);
-
-	//draw graph
-
 }
 
+// create tree diagram (source: http://www.d3noob.org/2014/01/tree-diagrams-in-d3js_11.html)
 function treeDiagram(){
-	// source: http://www.d3noob.org/2014/01/tree-diagrams-in-d3js_11.html
+	
 	var margin = {top: 120, right: 200, bottom: 0, left: 200},
  		width = 1200 - margin.right - margin.left,
  		height = 800 - margin.top - margin.bottom;
@@ -148,6 +151,7 @@ function treeDiagram(){
 
 	// make svg canvas
 	var canvas = d3.select("#treemap").append("svg")
+		.attr("id","svg1")
 		.attr("width", width + margin.right + margin.left)
 		.attr("height", height + margin.top + margin.bottom)
 		.append("g")
@@ -159,9 +163,9 @@ function treeDiagram(){
 	return [margin, tree, i, diagonal, canvas, root];
 }
 
-// draw tree function
+// draw tree function (source: http://www.d3noob.org/2014/01/tree-diagrams-in-d3js_11.html)
 function drawTree(tree, root, canvas, i, diagonal){
-
+	
 	// create nodes
 	var nodes = tree.nodes(root);
 
@@ -204,7 +208,7 @@ function drawTree(tree, root, canvas, i, diagonal){
 		.style("fill-opacity", 1);
 }
 
-//Create table from data function (source: http://bl.ocks.org/d3noob/5d47df5374d210b6f651)
+// Create table from data function (source: http://bl.ocks.org/d3noob/5d47df5374d210b6f651)
 function tabBook(data, columns) {
     var table = d3.select("#treemap").append("table")
             .attr("id", "BookTable")
@@ -246,6 +250,127 @@ function tabBook(data, columns) {
     return table;
 }
 
-function drawGraph(){
+function drawGraph(data){
 
+	// add attr to object data
+	data.forEach(function(d){
+		if ((d.Action == "IntIBL") || (d.Action == "Web renewal") || (d.Action == "Loan")){
+			d.User2 = d.User;
+		}
+		if(d.Action == "Regular return"){
+			d.User2 = "CIRC" + d.Location;
+		}
+	});
+
+	data.forEach(function(d){
+		if (d.User2 == "CIRCAMFI"){
+			d.Location2 = 1;
+		}
+		else if (d.User2 == "CIRCDML"){
+			d.Location2 = 2;
+		}
+		else if (d.User2 == "CIRCFB"){
+			d.Location2 = 3;
+		}
+		else if (d.User2 == "CIRCKSH"){
+			d.Location2 = 4;
+		}
+		else if (d.User2 == "CIRCLWB"){
+			d.Location2 = 5;
+		}
+		else if (d.User2 == "CIRCTBW"){
+			d.Location2 = 6;
+		}
+		else if (d.User2 == "Student"){
+			d.Location2 = 7;
+		}
+	});
+
+	// set dimensions of graph
+	var margin = {top: 30, right: 20, bottom: 30, left: 50}, width = 600 - margin.left - margin.right, height = 270 - margin.top - margin.bottom;
+
+    // parse date
+	var parseDate = d3.time.format("%d-%m-%Y");
+
+	// define locations list
+	var LocList = ["AMFI", "DML", "FB", "KSH", "LWB", "TBW", "Student"];
+
+	// set range x and y axes
+	var x = d3.time.scale().range([0, width]);
+	var y = d3.scale.linear().range([height,0]);
+				
+
+	// define the axes
+	var xAxis = d3.svg.axis().scale(x).orient("bottom");
+	var yAxis = d3.svg.axis().scale(y).orient("left");
+
+	// define line
+    var valueline = d3.svg.line()
+    	.x(function(d) {return x(d.xAxis); })
+    	.y(function(d) {return y(d.yAxis); })
+    	.interpolate("step-before");
+	
+	// Add svg canvas
+	var svg = d3.select("#treemap").append("svg")
+			.attr("id","svg2")
+			.attr("width", width + margin.left + margin.right)
+			.attr("height", height + margin.top + margin.bottom)
+		.append("g")
+			.attr("transform",
+				"translate(" + margin.left + "," + margin.top + ")");
+
+	// parse date
+	data.forEach(function(d){
+		d.xAxis = parseDate.parse(d.Date);
+		d.yAxis = d.Location2;
+	});
+
+	console.log(data);
+
+	// set the domain
+	x.domain(d3.extent(data, function(d) { return d.xAxis}));
+	y.domain([0, d3.max(data, function(d) { return d.yAxis})]);
+
+    // add line	
+    svg.append("path")
+    	.datum(data)
+    	.attr("class","line")
+		.attr("d", valueline);
+
+	// add dots on datapoints
+    svg.selectAll("dot")
+        .data(data)
+    .enter().append("circle")
+        .attr("r", 3.5)
+        .attr("cx", function(d) { return x(d.xAxis); })
+        .attr("cy", function(d) { return y(d.yAxis); });
+		
+	// add the x axis
+	svg.append("g")
+		.attr("class","x axis")
+		.attr("transform", "translate(0,"+ height +")")
+		.call(xAxis);
+	
+	// add x label
+    svg.append("text")
+    	.attr("id","xlabel")
+        .attr("transform", "translate(" + (width / 2) + " ," + (height + margin.bottom) + ")")
+        .style("text-anchor", "middle")
+        .style("font-weight","bold")
+        .text("Date");
+
+    // add the y axis
+	svg.append("g")
+		.attr("class","y axis")
+		.call(yAxis);
+
+	// add y label
+    svg.append("text")
+        .attr("transform", "rotate(-90)")
+        .attr("y", 0 - margin.left)
+        .attr("x", 0 - (height / 2))
+        .attr("dy", "1em")
+        .style("text-anchor", "middle")
+        .style("font-weight","bold")
+        .text("User");
 }

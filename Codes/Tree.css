@@ -6,9 +6,34 @@
 
 #BookTable{
 	margin: auto;
+	margin-top: 30px; 
+}
+
+.line{
+	fill: none;
+	stroke-width: 1px;
+	stroke: blue;
+}
+
+.axis path,
+.axis line {
+	fill: none;
+	stroke: black;
+	stroke-width: 1px;
+	shape-rendering: crispEdges;
+}
+
+#svg2{
+	display: block;
+	margin: auto;
+}
+
+#xlabel{
+	padding: 10px;
+	margin-top: 10px;
 }
 
 th,
 td{
-	
+
 }
