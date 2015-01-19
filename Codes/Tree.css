@@ -1,3 +1,7 @@
+body{
+	font: sans-serif;
+}
+
 .link {
   fill: none;
   stroke: #ccc;
@@ -9,10 +13,14 @@
 	margin-top: 30px; 
 }
 
+g.plot line{
+	stroke-width: 2px;
+	stroke: black;
+}
+
 .line{
 	fill: none;
 	stroke-width: 1px;
-	stroke: blue;
 }
 
 .axis path,
@@ -22,16 +30,35 @@
 	stroke-width: 1px;
 	shape-rendering: crispEdges;
 }
+.axis text{
+	font-family: sans-serif;
+	font-size: 11px;
+	padding: 5px;
+}
 
 #svg2{
 	display: block;
 	margin: auto;
+	padding: 30px;
 }
 
 #xlabel{
 	padding: 10px;
 	margin-top: 10px;
 }
+
+.tooltip {
+  line-height: 1;
+  padding: 12px;
+  background: rgba(0, 0, 0, 0.8);
+  color: #fff;
+  border-radius: 2px;
+}
+
+.circle:hover {
+  fill: red;
+}
+
 
 th,
 td{

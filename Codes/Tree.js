@@ -251,7 +251,7 @@ function tabBook(data, columns) {
 }
 
 function drawGraph(data){
-
+/*
 	// add attr to object data
 	data.forEach(function(d){
 		if ((d.Action == "IntIBL") || (d.Action == "Web renewal") || (d.Action == "Loan")){
@@ -260,8 +260,8 @@ function drawGraph(data){
 		if(d.Action == "Regular return"){
 			d.User2 = "CIRC" + d.Location;
 		}
-	});
-
+	});*/
+/*
 	data.forEach(function(d){
 		if (d.User2 == "CIRCAMFI"){
 			d.Location2 = 1;
@@ -284,7 +284,7 @@ function drawGraph(data){
 		else if (d.User2 == "Student"){
 			d.Location2 = 7;
 		}
-	});
+	});*/
 
 	// set dimensions of graph
 	var margin = {top: 30, right: 20, bottom: 30, left: 50}, width = 600 - margin.left - margin.right, height = 270 - margin.top - margin.bottom;
@@ -297,12 +297,21 @@ function drawGraph(data){
 
 	// set range x and y axes
 	var x = d3.time.scale().range([0, width]);
-	var y = d3.scale.linear().range([height,0]);
-				
+	var y = d3.scale.ordinal()
+				.rangePoints([height,0], 1)
+				.domain(LocList);
 
 	// define the axes
 	var xAxis = d3.svg.axis().scale(x).orient("bottom");
 	var yAxis = d3.svg.axis().scale(y).orient("left");
+
+	// define tooltip (source: http://bl.ocks.org/Caged/6476579)
+	var tip = d3.tip()
+				.attr("class", "tooltip")
+				.offset([-15, 5])
+				.html(function(d){
+					return "<strong> Action: </strong>" + d.Action +"<br>"+ "<strong> Date: </strong>" + d.Date + "<br>" + "<strong> Time: </strong>" + d.Time;
+				});
 
 	// define line
     var valueline = d3.svg.line()
@@ -313,38 +322,63 @@ function drawGraph(data){
 	// Add svg canvas
 	var svg = d3.select("#treemap").append("svg")
 			.attr("id","svg2")
-			.attr("width", width + margin.left + margin.right)
+			.attr("width", width + margin.left + margin.right )
 			.attr("height", height + margin.top + margin.bottom)
 		.append("g")
 			.attr("transform",
 				"translate(" + margin.left + "," + margin.top + ")");
 
+	svg.call(tip);
+
 	// parse date
 	data.forEach(function(d){
 		d.xAxis = parseDate.parse(d.Date);
-		d.yAxis = d.Location2;
+		if ((d.Action == "IntIBL") || (d.Action == "Web renewal") || (d.Action == "Loan")){
+			d.yAxis = d.User.replace("CIRC","");
+		}
+		if(d.Action == "Regular return"){
+			d.yAxis = d.Location;
+		}
 	});
 
 	console.log(data);
 
-	// set the domain
+	// set the domain of x
 	x.domain(d3.extent(data, function(d) { return d.xAxis}));
-	y.domain([0, d3.max(data, function(d) { return d.yAxis})]);
+
+    // add color gradient
+    var colorlist = ["red", "green", "yellow", "orange", "blue", "grey", "pink"];
 
     // add line	
     svg.append("path")
     	.datum(data)
     	.attr("class","line")
-		.attr("d", valueline);
+		.attr("d", valueline)
+		.attr("stroke", "blue");/*function(d){
+			if (d.yAxis == "Student"){
+				return blue;
+			}
+
+		});*/
+		/*data.forEach(function(d){ 
+			for (var i = 0; i < LocList.length; i++){
+				if (LocList[i] == d.yAxis){
+					return colorlist[i];
+				}	
+			}
+			}));*/
 
 	// add dots on datapoints
     svg.selectAll("dot")
         .data(data)
     .enter().append("circle")
+    	.attr("class","circle")
         .attr("r", 3.5)
         .attr("cx", function(d) { return x(d.xAxis); })
-        .attr("cy", function(d) { return y(d.yAxis); });
-		
+        .attr("cy", function(d) { return y(d.yAxis); })
+		.on("mouseover", tip.show)
+		.on("mouseout", tip.hide);
+
 	// add the x axis
 	svg.append("g")
 		.attr("class","x axis")
@@ -356,6 +390,7 @@ function drawGraph(data){
     	.attr("id","xlabel")
         .attr("transform", "translate(" + (width / 2) + " ," + (height + margin.bottom) + ")")
         .style("text-anchor", "middle")
+        .style("font-family", "sans-serif")
         .style("font-weight","bold")
         .text("Date");
 
@@ -371,6 +406,7 @@ function drawGraph(data){
         .attr("x", 0 - (height / 2))
         .attr("dy", "1em")
         .style("text-anchor", "middle")
+        .style("font-family", "sans-serif")
         .style("font-weight","bold")
         .text("User");
 }
