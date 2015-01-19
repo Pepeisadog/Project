@@ -1,146 +1,121 @@
 "use strict"
-console.log("load");
-
-var data = [
-{
-  "name": "Bibliotheek HvA",
-  "value": 85,
-  "children": [
-  {
-    "name":"KSH",
-    "value": 50,
-    "children": [
-      {"name":"Math",
-  		"value": 4 },
-      {"name":"Philosophy",
-  		"value": 1}
-    ]
-  },
-  {
-    "name":"AMFI",
-    "value": 6,
-    "children":[
-    {
-      "name":"Research Methods",
-      "value": 0.5,
-      "children": [
-        {"name":"Foundations of futures studies"}
+window.onload = function(){
+	var data = [
+	{
+	  "name": "Bibliotheek HvA",
+	  "value": 85,
+	  "children": [
+	  {
+	    "name":"KSH",
+	    "value": 50,
+	    "children": [
+	      {"name":"Math",
+	  		"value": 4 },
+	      {"name":"Philosophy",
+	  		"value": 1}
 	    ]
-    },
-    {"name":"Pop Culture",
-	 "value": 0.3}
-    ]
-  }
-  ]
-}];
+	  },
+	  {
+	    "name":"AMFI",
+	    "value": 6,
+	    "children":[
+	    {
+	      "name":"Research Methods",
+	      "value": 0.5,
+	      "children": [
+	        {"name":"Foundations of futures studies"}
+		    ]
+	    },
+	    {"name":"Pop Culture",
+		 "value": 0.3}
+	    ]
+	  }
+	  ]
+	}];
 
-// book circulation data
-var dataBook = [
-  {
-    "User":"CIRCAMFI",
-    "Date":"08-01-2015",
-    "Time":"11:02",
-    "Title":"Foundations of futures studies",
-    "Barcode":"HV008698",
-    "Action":"IntIBL",
-    "DueDate":"none",
-    "Location":"AMFI",
+	// book circulation data
+	var dataBook = [
+	  {
+	    "User":"CIRCAMFI",
+	    "Date":"08-01-2015",
+	    "Time":"11:02",
+	    "Title":"Foundations of futures studies",
+	    "Barcode":"HV008698",
+	    "Action":"IntIBL",
+	    "DueDate":"none",
+	    "Location":"AMFI",
 
-  },
-  {
-    "User":"CIRCKSH",
-    "Date":"07-01-2015",
-    "Time":"16:43",
-    "Title":"Foundations of futures studies",
-    "Barcode":"HV008698",
-    "Action":"IntIBL",
-    "DueDate":"none",
-    "Location":"KSH"
-  },
-  {
-    "User":"Student",
-    "Date":"07-01-2015",
-    "Time":"16:43",
-    "Title":"Foundations of futures studies",
-    "Barcode":"HV008698",
-    "Action":"Regular return",
-    "DueDate":"12-1-2015",
-    "Location":"KSH"
-  },
-  {
-    "User":"Student",
-    "Date":"17-12-2014",
-    "Time":"14:32",
-    "Title":"Foundations of futures studies",
-    "Barcode":"HV008698",
-    "Action":"Web renewal",
-    "DueDate":"12-1-2015",
-    "Location":"AMFI"
-  },
-  {
-    "User":"Student",
-    "Date":"16-11-2014",
-    "Time":"09:38",
-    "Title":"Foundations of futures studies",
-    "Barcode":"HV008698",
-    "Action":"Loan",
-    "DueDate":"18-12-2014",
-    "Location":"AMFI"
-  },
-  {
-    "User":"Student",
-    "Date":"17-07-2014",
-    "Time":"13:11",
-    "Title":"Foundations of futures studies",
-    "Barcode":"HV008698",
-    "Action":"Regular return",
-    "DueDate":"3-8-2014",
-    "Location":"AMFI"
-  },
-  {
-    "User":"Student",
-    "Date":"05-07-2014",
-    "Time":"11:39",
-    "Title":"Foundations of futures studies",
-    "Barcode":"HV008698",
-    "Action":"Loan",
-    "DueDate":"3-8-2014",
-    "Location":"AMFI"
-  }
-];
+	  },
+	  {
+	    "User":"CIRCKSH",
+	    "Date":"07-01-2015",
+	    "Time":"16:43",
+	    "Title":"Foundations of futures studies",
+	    "Barcode":"HV008698",
+	    "Action":"IntIBL",
+	    "DueDate":"none",
+	    "Location":"KSH"
+	  },
+	  {
+	    "User":"Student",
+	    "Date":"07-01-2015",
+	    "Time":"16:43",
+	    "Title":"Foundations of futures studies",
+	    "Barcode":"HV008698",
+	    "Action":"Regular return",
+	    "DueDate":"12-1-2015",
+	    "Location":"KSH"
+	  },
+	  {
+	    "User":"Student",
+	    "Date":"17-12-2014",
+	    "Time":"14:32",
+	    "Title":"Foundations of futures studies",
+	    "Barcode":"HV008698",
+	    "Action":"Web renewal",
+	    "DueDate":"12-1-2015",
+	    "Location":"AMFI"
+	  },
+	  {
+	    "User":"Student",
+	    "Date":"16-11-2014",
+	    "Time":"09:38",
+	    "Title":"Foundations of futures studies",
+	    "Barcode":"HV008698",
+	    "Action":"Loan",
+	    "DueDate":"18-12-2014",
+	    "Location":"AMFI"
+	  },
+	  {
+	    "User":"Student",
+	    "Date":"17-07-2014",
+	    "Time":"13:11",
+	    "Title":"Foundations of futures studies",
+	    "Barcode":"HV008698",
+	    "Action":"Regular return",
+	    "DueDate":"3-8-2014",
+	    "Location":"AMFI"
+	  },
+	  {
+	    "User":"Student",
+	    "Date":"05-07-2014",
+	    "Time":"11:39",
+	    "Title":"Foundations of futures studies",
+	    "Barcode":"HV008698",
+	    "Action":"Loan",
+	    "DueDate":"3-8-2014",
+	    "Location":"AMFI"
+	  }
+	];
 
-console.log(dataBook);
-
-function onload(){
-
-	// create tree diagram
-	var info = treeDiagram();
-	var margin = info[0];
-	var tree = info[1];
-	var i = info[2];
-	var diagonal = info[3]
-	var canvas = info[4] 
-	var root = info[5]
-
-	// draw tree
-	drawTree(tree, root, canvas, i, diagonal);
-
-	//draw graph
-	drawGraph(dataBook);
-
-	// draw table
-	tabBook(dataBook,["User", "Date", "Time", "Title", "Barcode","Action","DueDate","Location"]);
-}
-
-// create tree diagram (source: http://www.d3noob.org/2014/01/tree-diagrams-in-d3js_11.html)
-function treeDiagram(){
-	
+	//=========== Generate the tree diagram =================//
 	var margin = {top: 120, right: 200, bottom: 0, left: 200},
- 		width = 1200 - margin.right - margin.left,
- 		height = 800 - margin.top - margin.bottom;
+	 		width = 1200 - margin.right - margin.left,
+	 		height = 800 - margin.top - margin.bottom;
 
-	var i = 0;	
-	
+	var i = 0,
+		duration = 750,
+		root;
 
 	// make tree canvas
 	var tree = d3.layout.tree()
@@ -159,56 +134,133 @@ function treeDiagram(){
 			.attr("transform","translate(" + margin.left + "," + margin.top + ")");
 
 	// define the top level of the tree/array
-	var root = data[0];
+	root = data[0];
+	root.x0 = height /2;
+	root.y0 = 0;
 
-	return [margin, tree, i, diagonal, canvas, root];
+	// draw tree
+	update(root);
+
+	d3.select(self.frameElement).style("height", "500px");
+
+	// draw tree function (source: http://www.d3noob.org/2014/01/tree-diagrams-in-d3js_11.html)
+	function update(source){
+
+		// compute the new tree layout
+		var nodes = tree.nodes(root);
+
+		// get target and source, store in links
+		var links = tree.links(nodes);
+
+		// normalize for fixed-depth of nodes
+		nodes.forEach(function(d) { d.y = d.depth * 100; });
+
+			// update the nodes
+			var node = canvas.selectAll("g.node")
+				.data(nodes, function(d) { return d.id || (d.id = ++i); });
+
+	  	// Enter any new nodes at the parents previous position.	
+			var nodeEnter = node.enter().append("g")
+				.attr("class", "node")
+				//apply transform function to display correctly on screen
+				.attr("transform", function(d) { return "translate(" + source.x0 + "," + source.y0 + ")"; })
+				.on("click", click);
+
+		// create circles for nodes
+		nodeEnter.append("circle")
+			.attr("r", function(d) { return d.value; })
+			.attr("fill", function(d){ return d._children ? "lightsteelblue" : "#fff"; });
+
+		// append & enter node labels
+		nodeEnter.append("text")
+			.attr("y", function(d){ return d.children || d._children ?  -18 : 18 })
+			.attr("dy",".35em")
+			.attr("text-anchor", "middle")
+			.style("font-family", "Courier")
+			.text(function(d) { return d.name; })
+			.style("fill-opacity", 1);
+
+		// Transition nodes to their new position
+		var nodeUpdate = node.transition()
+			.duration(duration)
+			.attr("transform", function(d) { return "translate(" + d.x + "," + d.y + ")"});
+
+		nodeUpdate.select("circle")
+			.attr("r", function(d) {return d.value})
+			.style("fill", function(d) {return d._children ? "lightsteelblue" : "#fff";});
+
+		nodeUpdate.select("text")
+			.style("fill-opacity", 1);
+
+		// Transition existing nodes to the parent's new position.
+		var nodeExit = node.exit().transition()
+			.duration(duration)
+			.attr("transform", function(d) {return "translate{" + source.x + "," + source.y + ")"; })
+			.remove();
+
+		nodeExit.select("circle")
+			.attr("r", 1e-6);
+
+		nodeExit.select("text")
+			.style("fill-opacity", 1e-6);
+
+		// Update the links
+		var link = canvas.selectAll("path.link")
+			.data(links, function(d) { return d.target.id; });
+
+		// enter any new links at the parents previous position
+		link.enter().insert("path","g")
+			.attr("class","link")
+			.attr("d", function(d){
+				var o = {x:source.x0, y:source.y0};
+				return diagonal({source: o, target: o});
+			});
+
+		// transition links to their new position
+		link.transition()
+			.duration(duration)
+			.attr("d", diagonal);
+
+		// transition existing node to the parent's new position.
+		link.exit().transition()
+			.duration(duration)
+			.attr("d", function(d){
+				var o = {x: source.x, y: source.y};
+				return diagonal({source: o, target: o});
+			})
+			.remove();
+		
+		// stash the old positions for transition
+		nodes.forEach(function(d) {
+			d.x0 = d.x;
+			d.y0 = d.y;
+		})
+	}
+
+	// ================ toggle children on click function =======================//
+	function click(d){
+		if (d.children){
+			d._children = d.children;
+			d.children = null;
+		}
+		else{
+			d.children = d._children;
+			d._children = null;
+		}
+
+		update(d);
 }
 
-// draw tree function (source: http://www.d3noob.org/2014/01/tree-diagrams-in-d3js_11.html)
-function drawTree(tree, root, canvas, i, diagonal){
-	
-	// create nodes
-	var nodes = tree.nodes(root);
 
-	// get target and source, store in links
-	var links = tree.links(nodes);
+	//================ Draw graph =============================//
+	drawGraph(dataBook);
 
-	// normalize for fixed-depth of nodes
-	nodes.forEach(function(d) { d.y = d.depth * 100; });
-
-		// initiate the nodes
-		var node = canvas.selectAll("g.node")
-			.data(nodes, function(d) { return d.id || (d.id = ++i); });
-
-  	// enter the nodes.	
-		var nodeEnter = node.enter().append("g")
-			.attr("class", "node")
-			//apply transform function to display correctly on screen
-			.attr("transform", function(d) { return "translate(" + d.x + "," + d.y + ")"; });
-
-	// create circles for nodes
-	nodeEnter.append("circle")
-		.attr("r", function(d) { return d.value; })
-		.attr("fill","steelblue");
-
-	// create the links
-	var link = canvas.selectAll("path.link")
-		.data(links, function(d) { return d.target.id; });
-
-	// enter the links
-	link.enter().insert("path","g")
-		.attr("class","link")
-		.attr("d", diagonal);
-
-	// append & enter node labels
-	nodeEnter.append("text")
-		.attr("y", function(d){ return d.children || d._children ?  -18 : 18 })
-		.attr("dy",".35em")
-		.attr("text-anchor", "middle")
-		.style("font-family", "Courier")
-		.text(function(d) { return d.name; })
-		.style("fill-opacity", 1);
+	//================ Draw table ============================//
+	tabBook(dataBook,["User", "Date", "Time", "Title", "Barcode","Action","DueDate","Location"]);
 }
+
+
+
 
 // Create table from data function (source: http://bl.ocks.org/d3noob/5d47df5374d210b6f651)
 function tabBook(data, columns) {
@@ -343,8 +395,6 @@ function drawGraph(data){
 		}
 	});
 
-	console.log(data);
-
 	// set the domain of x
 	x.domain(d3.extent(data, function(d) { return d.xAxis}));
 
@@ -360,8 +410,8 @@ function drawGraph(data){
 
     var xcor = [0, 34, 380, 468, 527, 527, 530];
     //console.log(i)
-    console.log(x)
-    console.log(y)
+    //console.log(x)
+    //console.log(y)
     //console.log(value)
     //console.log(nextValue)
 
