@@ -140,6 +140,7 @@ function treeDiagram(){
  		height = 800 - margin.top - margin.bottom;
 
 	var i = 0;	
+	
 
 	// make tree canvas
 	var tree = d3.layout.tree()
@@ -204,6 +205,7 @@ function drawTree(tree, root, canvas, i, diagonal){
 		.attr("y", function(d){ return d.children || d._children ?  -18 : 18 })
 		.attr("dy",".35em")
 		.attr("text-anchor", "middle")
+		.style("font-family", "Courier")
 		.text(function(d) { return d.name; })
 		.style("fill-opacity", 1);
 }
@@ -349,17 +351,57 @@ function drawGraph(data){
     // add color gradient
     var colorlist = ["red", "green", "yellow", "orange", "blue", "grey", "pink"];
 
-    // add line	
-    svg.append("path")
+    // add line
+    var lines = svg.append("g").attr("class", "plot").selectAll("line");
+
+    lines = lines.data(data);
+
+    lines.enter().append("line");
+
+    var xcor = [0, 34, 380, 468, 527, 527, 530];
+    //console.log(i)
+    console.log(x)
+    console.log(y)
+    //console.log(value)
+    //console.log(nextValue)
+
+    lines.each(function(d,i){
+    	// current y-value
+    	var value = d.yAxis;
+
+    	// find next point
+    	var next = i + 1;   // x position
+    	var nextValue = data[i+1] // y position
+
+    	if (isNaN(nextValue)){
+    		next = i;
+    		nextValue = value;
+		}	
+
+		d3.select(this)
+			// set coordinates of line
+			.attr("id", "line" + i )
+			.attr({x1 : x(i),
+				y1 : y(value),
+				x2 : x(i+1),
+				y2 : y(nextValue)
+			})
+
+			// set styles for line segment
+
+	});
+
+    
+/*    svg.append("path")
     	.datum(data)
     	.attr("class","line")
 		.attr("d", valueline)
-		.attr("stroke", "blue");/*function(d){
+		.attr("stroke", "blue");function(d){
 			if (d.yAxis == "Student"){
 				return blue;
 			}
 
-		});*/
+		});
 		/*data.forEach(function(d){ 
 			for (var i = 0; i < LocList.length; i++){
 				if (LocList[i] == d.yAxis){
