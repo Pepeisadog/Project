@@ -1,5 +1,51 @@
 body{
 	font: sans-serif;
+	background-color: Snow;
+}
+
+header{
+	height: 50px;
+	width: 700px;
+	font-family: 'Raleway', sans-serif;
+	font-size: 40px;
+	text-align: center;
+	border-bottom: 2px dashed;
+	color: grey;
+	display: block;
+	margin: auto;
+	padding-bottom: 20px;
+	padding-top: 40px;
+}
+
+footer{
+	height: 20px;
+	width: 700px;
+	font-family: courier;
+	font-size: 16px;
+	text-align: center;
+	color: grey;
+	display: block;
+	margin: auto;
+	padding-top: 40px;
+}
+
+p{
+	line-height: 20px;
+}
+
+#description{
+	height: 400px;
+	width: 700px;
+	font-family: courier;
+	font-size: 12px;
+	display: block;
+	margin: auto;
+}
+
+#svg1{
+	background-color: HoneyDew;
+	border: 1px dotted;
+	color: grey;
 }
 
 .link {
@@ -50,6 +96,7 @@ g.plot line{
 	padding: 5px;
 }
 
+#svg1,
 #svg2{
 	display: block;
 	margin: auto;

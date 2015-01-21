@@ -110,8 +110,8 @@ window.onload = function(){
 
 	//=========== Generate the tree diagram =================//
 	var margin = {top: 120, right: 200, bottom: 0, left: 200},
-	 		width = 1200 - margin.right - margin.left,
-	 		height = 800 - margin.top - margin.bottom;
+	 		width = 1000 - margin.right - margin.left,
+	 		height = 600 - margin.top - margin.bottom;
 
 	var i = 0,
 		duration = 750,
@@ -260,8 +260,6 @@ window.onload = function(){
 }
 
 
-
-
 // Create table from data function (source: http://bl.ocks.org/d3noob/5d47df5374d210b6f651)
 function tabBook(data, columns) {
     var table = d3.select("#treemap").append("table")
@@ -366,12 +364,6 @@ function drawGraph(data){
 				.html(function(d){
 					return "<strong> Action: </strong>" + d.Action +"<br>"+ "<strong> Date: </strong>" + d.Date + "<br>" + "<strong> Time: </strong>" + d.Time;
 				});
-
-	// define line
-    var valueline = d3.svg.line()
-    	.x(function(d) {return x(d.xAxis); })
-    	.y(function(d) {return y(d.yAxis); })
-    	.interpolate("step-before");
 	
 	// Add svg canvas
 	var svg = d3.select("#treemap").append("svg")
@@ -395,53 +387,95 @@ function drawGraph(data){
 		}
 	});
 
+	data.forEach(function(d){
+		for (var i = 0; i<LocList.length; i++){
+			if (d.yAxis ==LocList[i]){
+				d.LocID == i;
+			}
+
+		}
+	})
+
 	// set the domain of x
 	x.domain(d3.extent(data, function(d) { return d.xAxis}));
 
     // add color gradient
     var colorlist = ["red", "green", "yellow", "orange", "blue", "grey", "pink"];
+		
+    /*// generate line data
+	var lineData = [ { "x": 0, "y": 15}, { "x": 34, "y": 195}, { "x": 380, "y": 15}, { "x": 468, "y": 15}, { "x": 527, "y": 105}, { "x": 530, "y": 195}];    
+	*/
+	// generate new line data
+	var newData = [{ "x": 0, "y": 15}, { "x": 34, "y": 15}, { "x": 34, "y": 195}, { "x": 380, "y": 195}, { "x": 380, "y": 15}, { "x": 468, "y": 15}, { "x": 527, "y": 15}, { "x": 527, "y": 105}, { "x": 530, "y": 105}, { "x": 530, "y": 195}];
+	/*var h = 0;
 
-    // add line
-    var lines = svg.append("g").attr("class", "plot").selectAll("line");
 
-    lines = lines.data(data);
+	while (h < lineData.length-1){
+		if (h % 2 == 0){
+			newData.push({"x": lineData[h].x, "y": lineData[h].y})
+			newData.push({"x": lineData[h+1].x, "y": lineData[h].y})
+		}
+		else{
+			newData.push({"x": newData[newData.length-1].x, "y": newData[newData.length-1].y}, 
+				{"x": lineData[h+1].x, "y": newData[newData.length-1].y});	
+		}
 
-    lines.enter().append("line");
+		h = h+1;
+	}*/
 
-    var xcor = [0, 34, 380, 468, 527, 527, 530];
-    //console.log(i)
-    //console.log(x)
-    //console.log(y)
-    //console.log(value)
-    //console.log(nextValue)
+    // add lines for each datapoint
+    var lines = svg.append("g").attr("class", "plot").selectAll("line")
+    			.data(data)
+    			.enter().append("line");
+
+	console.log(newData);
 
     lines.each(function(d,i){
-    	// current y-value
-    	var value = d.yAxis;
 
-    	// find next point
-    	var next = i + 1;   // x position
-    	var nextValue = data[i+1] // y position
-
-    	if (isNaN(nextValue)){
-    		next = i;
-    		nextValue = value;
-		}	
-
-		d3.select(this)
-			// set coordinates of line
-			.attr("id", "line" + i )
-			.attr({x1 : x(i),
-				y1 : y(value),
-				x2 : x(i+1),
-				y2 : y(nextValue)
-			})
-
-			// set styles for line segment
+    	for (var h = 0; h < newData.length-1; h++){
+			d3.select(this)
+				// set coordinates of line
+				.attr("id", "line" + i)
+				.attr({x1 : newData[i].x,
+					y1 : newData[i].y,
+					x2 : newData[i+1].x,
+					y2 : newData[i+1].y
+				})
+				
+				// set styles for line segment
+				.style("stroke", function(d){
+					if (d.yAxis == "Student"){
+					return "blue"; }
+					else{
+						return "green";
+					}
+				console.log(y1)
+				if ((y1- y2) > 0){
+					d3.select(this)
+						.style("stroke-dasharray", ("3,3"))
+						.style("stroke", "black")
+						.style("stroke-wdith", 1)
+				}
+				});
+		}
 
 	});
 
-    
+/* 	//Working
+	// define line
+    var valueline = d3.svg.line()
+    	.x(function(d) {return x(d.xAxis); })
+    	.y(function(d) {return y(d.yAxis); })
+    	.interpolate("step-before");
+
+	var lineGraph = svg.append("path")
+						.data(data)
+						.attr("class", "line")
+						.attr("d", valueline(data))
+						.attr("stroke", "blue") 
+						.attr("stroke-width", 2)
+						.attr("fill", "none");*/
+
 /*    svg.append("path")
     	.datum(data)
     	.attr("class","line")
@@ -459,7 +493,7 @@ function drawGraph(data){
 				}	
 			}
 			}));*/
-
+	
 	// add dots on datapoints
     svg.selectAll("dot")
         .data(data)
