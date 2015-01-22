@@ -43,7 +43,7 @@ p{
 }
 
 #svg1{
-	background-color: HoneyDew;
+	background-color: white;
 	border: 1px dotted;
 	color: grey;
 }
@@ -69,9 +69,7 @@ g.plot line{
 }
 
 .node circle{
-	fill: #fff;
-	stroke: steelblue;
-	stroke-width: 3px;
+	border: 3px dashed; 
 }
 
 .node text{
@@ -91,8 +89,7 @@ g.plot line{
 	shape-rendering: crispEdges;
 }
 .axis text{
-	font-family: sans-serif;
-	font-size: 11px;
+	font: 11px courier;
 	padding: 5px;
 }
 
@@ -103,12 +100,16 @@ g.plot line{
 	padding: 30px;
 }
 
+#ylabel,
 #xlabel{
 	padding: 10px;
 	margin-top: 10px;
+	font: 16px courier;
+	font-weight: bold;
+	text-align: center;
 }
 
-.tooltip {
+#tooltip {
   line-height: 1;
   padding: 12px;
   background: rgba(0, 0, 0, 0.8);
@@ -116,12 +117,13 @@ g.plot line{
   border-radius: 2px;
 }
 
-.circle:hover {
-  fill: red;
+#treetooltip{
+	line-height: 1;
+	padding: 12px;
+	border: 1px dotted silver;
+	font: 12px courier;
 }
 
-
-th,
-td{
-
+.circle:hover {
+  fill: red;
 }

@@ -2,32 +2,52 @@
 window.onload = function(){
 	var data = [
 	{
-	  "name": "Bibliotheek HvA",
+	  "name": "Library University of Applied Sciences",
+	  "object": "Parent",
 	  "value": 85,
+	  "total": 85000,
 	  "children": [
 	  {
 	    "name":"KSH",
+	    "full_name": "Kohnstammhuis",
+	    "object": "Location",
 	    "value": 50,
+	    "total": 50000,
+	    "location": "Wibautstraat 2-4, Amsterdam",
 	    "children": [
 	      {"name":"Math",
-	  		"value": 4 },
+	  		"value": 4,
+	  		"total": 400 },
 	      {"name":"Philosophy",
-	  		"value": 1}
+	  		"value": 1,
+	  		"total": 100}
 	    ]
 	  },
 	  {
 	    "name":"AMFI",
+	    "full_name": "Amsterdam Fashion Institute",
+	    "object": "Location",
 	    "value": 6,
+	    "total": 6000,
+	    "location": "Mauritskade 11, Amsterdam",
+	    "type": "grey",
 	    "children":[
 	    {
 	      "name":"Research Methods",
+	      "object": "Category",
 	      "value": 0.5,
+	      "total": 50,
 	      "children": [
-	        {"name":"Foundations of futures studies"}
+	        {"name":"Foundations of futures studies",
+	        "object": "Book",
+	        "copies": 1,
+	        "value": 1}
 		    ]
 	    },
 	    {"name":"Pop Culture",
-		 "value": 0.3}
+	    "object": "Category",
+		 "value": 0.3,
+		 "total": 30}
 	    ]
 	  }
 	  ]
@@ -136,7 +156,10 @@ window.onload = function(){
 	// define the top level of the tree/array
 	root = data[0];
 	root.x0 = height /2;
-	root.y0 = 0;
+	root.y0 = width/2;
+
+    // layout the tree initially and center on the root node.
+    tree.nodes(root).forEach(function(d) { click(d); });
 
 	// draw tree
 	update(root);
@@ -146,6 +169,45 @@ window.onload = function(){
 	// draw tree function (source: http://www.d3noob.org/2014/01/tree-diagrams-in-d3js_11.html)
 	function update(source){
 
+		// define tooltip (source: http://bl.ocks.org/Caged/6476579)
+		var tip = d3.tip()
+			.attr("id","treetooltip")
+			.attr("class", "tooltip")
+			.direction(function(d){ 
+				if (d.name == "AMFI"){
+					return "e"
+				}
+				else{
+					return "w"
+				}})
+			.offset(function(d){
+				if(d.name == "AMFI"){
+					return [0,50]
+				}
+				else{
+					return[0,-30]
+				}})
+			.html(function(d){
+				if (d.object == "Parent"){
+					return "<strong> Total Books: </strong>" + d.total
+							+"<br>" +"<strong> Locations: </strong>6"
+							+"<br>" +"<strong> Members: </strong>54.000"
+
+				}
+				if(d.object == "Category") {
+					return "<strong> Total Books: </strong>" + d.total;
+				};
+				if (d.object == "Location"){
+					return "<strong>" + d.full_name +"</strong>" + "<br>"+ 
+							"<strong>Address: </strong>" + d.location + "<br>" 
+							+ "<strong>Total Books: </strong>" + d.total;
+				}
+				if (d.object =="Book"){
+					return "<strong> Copies: </strong>" + d.copies + "<br>" +
+							"<strong> Click to show circulation history! </strong>";
+				}
+			});
+
 		// compute the new tree layout
 		var nodes = tree.nodes(root);
 
@@ -153,7 +215,7 @@ window.onload = function(){
 		var links = tree.links(nodes);
 
 		// normalize for fixed-depth of nodes
-		nodes.forEach(function(d) { d.y = d.depth * 100; });
+		nodes.forEach(function(d) { d.y = d.depth * 150; });
 
 			// update the nodes
 			var node = canvas.selectAll("g.node")
@@ -168,8 +230,15 @@ window.onload = function(){
 
 		// create circles for nodes
 		nodeEnter.append("circle")
-			.attr("r", function(d) { return d.value; })
-			.attr("fill", function(d){ return d._children ? "lightsteelblue" : "#fff"; });
+			.attr("r", function(d){return d.value})/*function(d) {
+				if (d.value < 2){
+					return 2;
+				}
+				else{
+					return d.value; 
+				}})*/
+			.attr("stroke", "silver")
+			.attr("fill", function(d){ return d._children ? "#b0c0de" : "#ebeff6"; })
 
 		// append & enter node labels
 		nodeEnter.append("text")
@@ -178,7 +247,25 @@ window.onload = function(){
 			.attr("text-anchor", "middle")
 			.style("font-family", "Courier")
 			.text(function(d) { return d.name; })
-			.style("fill-opacity", 1);
+			.style("fill-opacity", 1)
+			.on("mouseover", tip.show)
+			.on("mouseout", tip.hide)
+			.style("text-decoration", function(d){
+				if (d.object =="Book"){
+					return "underline";
+				}
+			})
+			.attr("id", function(d){
+				if(d.object=="Book"){
+					return "clickBook";
+				}
+			})
+			.on("click", function(d){
+				var ids = d3.select(this).attr("id");
+				if ( ids == "clickBook"){
+					return showHide();
+				}
+			});
 
 		// Transition nodes to their new position
 		var nodeUpdate = node.transition()
@@ -187,7 +274,8 @@ window.onload = function(){
 
 		nodeUpdate.select("circle")
 			.attr("r", function(d) {return d.value})
-			.style("fill", function(d) {return d._children ? "lightsteelblue" : "#fff";});
+			.style("fill", function(d) {return d._children ? "#b0c0de" : "#ebeff6";})
+			.style("border", "3px dotted");
 
 		nodeUpdate.select("text")
 			.style("fill-opacity", 1);
@@ -195,7 +283,7 @@ window.onload = function(){
 		// Transition existing nodes to the parent's new position.
 		var nodeExit = node.exit().transition()
 			.duration(duration)
-			.attr("transform", function(d) {return "translate{" + source.x + "," + source.y + ")"; })
+			.attr("transform", function(d) {return "translate(" + source.x + "," + source.y + ")"; })
 			.remove();
 
 		nodeExit.select("circle")
@@ -234,7 +322,9 @@ window.onload = function(){
 		nodes.forEach(function(d) {
 			d.x0 = d.x;
 			d.y0 = d.y;
-		})
+		});
+
+		canvas.call(tip);
 	}
 
 	// ================ toggle children on click function =======================//
@@ -249,8 +339,7 @@ window.onload = function(){
 		}
 
 		update(d);
-}
-
+	}
 
 	//================ Draw graph =============================//
 	drawGraph(dataBook);
@@ -259,6 +348,26 @@ window.onload = function(){
 	tabBook(dataBook,["User", "Date", "Time", "Title", "Barcode","Action","DueDate","Location"]);
 }
 
+function showHide(d){
+	console.log("Show Hide!");
+
+	var svg = d3.select("#svg2");
+
+	var state = svg.style("visibility");
+	console.log(state);
+
+	var newVisibility;
+
+	if ( state == "hidden"){
+		newVisibility = "visible";
+	}
+	else {
+		newVisibility = "hidden";
+	}
+
+	svg.style("visibility", newVisibility);
+
+}
 
 // Create table from data function (source: http://bl.ocks.org/d3noob/5d47df5374d210b6f651)
 function tabBook(data, columns) {
@@ -303,43 +412,11 @@ function tabBook(data, columns) {
 }
 
 function drawGraph(data){
-/*
-	// add attr to object data
-	data.forEach(function(d){
-		if ((d.Action == "IntIBL") || (d.Action == "Web renewal") || (d.Action == "Loan")){
-			d.User2 = d.User;
-		}
-		if(d.Action == "Regular return"){
-			d.User2 = "CIRC" + d.Location;
-		}
-	});*/
-/*
-	data.forEach(function(d){
-		if (d.User2 == "CIRCAMFI"){
-			d.Location2 = 1;
-		}
-		else if (d.User2 == "CIRCDML"){
-			d.Location2 = 2;
-		}
-		else if (d.User2 == "CIRCFB"){
-			d.Location2 = 3;
-		}
-		else if (d.User2 == "CIRCKSH"){
-			d.Location2 = 4;
-		}
-		else if (d.User2 == "CIRCLWB"){
-			d.Location2 = 5;
-		}
-		else if (d.User2 == "CIRCTBW"){
-			d.Location2 = 6;
-		}
-		else if (d.User2 == "Student"){
-			d.Location2 = 7;
-		}
-	});*/
 
 	// set dimensions of graph
-	var margin = {top: 30, right: 20, bottom: 30, left: 50}, width = 600 - margin.left - margin.right, height = 270 - margin.top - margin.bottom;
+	var margin = {top: 30, right: 20, bottom: 30, left: 50}, 
+		width = 600 - margin.left - margin.right, 
+		height = 270 - margin.top - margin.bottom;
 
     // parse date
 	var parseDate = d3.time.format("%d-%m-%Y");
@@ -359,7 +436,7 @@ function drawGraph(data){
 
 	// define tooltip (source: http://bl.ocks.org/Caged/6476579)
 	var tip = d3.tip()
-				.attr("class", "tooltip")
+				.attr("id", "tooltip")
 				.offset([-15, 5])
 				.html(function(d){
 					return "<strong> Action: </strong>" + d.Action +"<br>"+ "<strong> Date: </strong>" + d.Date + "<br>" + "<strong> Time: </strong>" + d.Time;
@@ -370,6 +447,7 @@ function drawGraph(data){
 			.attr("id","svg2")
 			.attr("width", width + margin.left + margin.right )
 			.attr("height", height + margin.top + margin.bottom)
+			.style("visibility", "visible")
 		.append("g")
 			.attr("transform",
 				"translate(" + margin.left + "," + margin.top + ")");
@@ -401,7 +479,7 @@ function drawGraph(data){
 
     // add color gradient
     var colorlist = ["red", "green", "yellow", "orange", "blue", "grey", "pink"];
-		
+
     /*// generate line data
 	var lineData = [ { "x": 0, "y": 15}, { "x": 34, "y": 195}, { "x": 380, "y": 15}, { "x": 468, "y": 15}, { "x": 527, "y": 105}, { "x": 530, "y": 195}];    
 	*/
@@ -427,8 +505,6 @@ function drawGraph(data){
     var lines = svg.append("g").attr("class", "plot").selectAll("line")
     			.data(data)
     			.enter().append("line");
-
-	console.log(newData);
 
     lines.each(function(d,i){
 
@@ -505,6 +581,24 @@ function drawGraph(data){
 		.on("mouseover", tip.show)
 		.on("mouseout", tip.hide);
 
+	// get cx cy coordinates
+	var circles = d3.select("#svg2").selectAll(".circle")
+	var cx_list = [],
+		cy_list =[];
+
+	circles.each(function(){
+		cx_list.push(d3.select(this).attr("cx"));
+		cy_list.push(d3.select(this).attr("cy"));
+	});
+
+	cx_list = cx_list.reverse();
+	cy_list = cy_list.reverse();
+	console.log(cx_list);
+	console.log(cy_list);
+
+
+
+	
 	// add the x axis
 	svg.append("g")
 		.attr("class","x axis")
@@ -515,9 +609,6 @@ function drawGraph(data){
     svg.append("text")
     	.attr("id","xlabel")
         .attr("transform", "translate(" + (width / 2) + " ," + (height + margin.bottom) + ")")
-        .style("text-anchor", "middle")
-        .style("font-family", "sans-serif")
-        .style("font-weight","bold")
         .text("Date");
 
     // add the y axis
@@ -527,12 +618,15 @@ function drawGraph(data){
 
 	// add y label
     svg.append("text")
+    	.attr("id", "ylabel")
         .attr("transform", "rotate(-90)")
         .attr("y", 0 - margin.left)
         .attr("x", 0 - (height / 2))
         .attr("dy", "1em")
-        .style("text-anchor", "middle")
-        .style("font-family", "sans-serif")
-        .style("font-weight","bold")
         .text("User");
+
+    // append table checkbox
+    d3.select("#checkbox")
+    	.append("input")
+    	.attr("type", "checkbox")
 }
