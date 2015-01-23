@@ -346,6 +346,8 @@ window.onload = function(){
 
 	//================ Draw table ============================//
 	tabBook(dataBook,["User", "Date", "Time", "Title", "Barcode","Action","DueDate","Location"]);
+
+	Map();
 }
 
 function showHide(d){
@@ -375,6 +377,7 @@ function tabBook(data, columns) {
             .attr("id", "BookTable")
             .attr("class","table")
             .style("border-collapse", "collapse")
+            .style("visibility", "hidden")
             .style("border", "2px black solid"), 
         thead = table.append("thead"),
         tbody = table.append("tbody");
@@ -447,7 +450,7 @@ function drawGraph(data){
 			.attr("id","svg2")
 			.attr("width", width + margin.left + margin.right )
 			.attr("height", height + margin.top + margin.bottom)
-			.style("visibility", "visible")
+			.style("visibility", "hidden")
 		.append("g")
 			.attr("transform",
 				"translate(" + margin.left + "," + margin.top + ")");
@@ -476,99 +479,6 @@ function drawGraph(data){
 
 	// set the domain of x
 	x.domain(d3.extent(data, function(d) { return d.xAxis}));
-
-    // add color gradient
-    var colorlist = ["red", "green", "yellow", "orange", "blue", "grey", "pink"];
-
-    /*// generate line data
-	var lineData = [ { "x": 0, "y": 15}, { "x": 34, "y": 195}, { "x": 380, "y": 15}, { "x": 468, "y": 15}, { "x": 527, "y": 105}, { "x": 530, "y": 195}];    
-	*/
-	// generate new line data
-	var newData = [{ "x": 0, "y": 15}, { "x": 34, "y": 15}, { "x": 34, "y": 195}, { "x": 380, "y": 195}, { "x": 380, "y": 15}, { "x": 468, "y": 15}, { "x": 527, "y": 15}, { "x": 527, "y": 105}, { "x": 530, "y": 105}, { "x": 530, "y": 195}];
-	/*var h = 0;
-
-
-	while (h < lineData.length-1){
-		if (h % 2 == 0){
-			newData.push({"x": lineData[h].x, "y": lineData[h].y})
-			newData.push({"x": lineData[h+1].x, "y": lineData[h].y})
-		}
-		else{
-			newData.push({"x": newData[newData.length-1].x, "y": newData[newData.length-1].y}, 
-				{"x": lineData[h+1].x, "y": newData[newData.length-1].y});	
-		}
-
-		h = h+1;
-	}*/
-
-    // add lines for each datapoint
-    var lines = svg.append("g").attr("class", "plot").selectAll("line")
-    			.data(data)
-    			.enter().append("line");
-
-    lines.each(function(d,i){
-
-    	for (var h = 0; h < newData.length-1; h++){
-			d3.select(this)
-				// set coordinates of line
-				.attr("id", "line" + i)
-				.attr({x1 : newData[i].x,
-					y1 : newData[i].y,
-					x2 : newData[i+1].x,
-					y2 : newData[i+1].y
-				})
-				
-				// set styles for line segment
-				.style("stroke", function(d){
-					if (d.yAxis == "Student"){
-					return "blue"; }
-					else{
-						return "green";
-					}
-				console.log(y1)
-				if ((y1- y2) > 0){
-					d3.select(this)
-						.style("stroke-dasharray", ("3,3"))
-						.style("stroke", "black")
-						.style("stroke-wdith", 1)
-				}
-				});
-		}
-
-	});
-
-/* 	//Working
-	// define line
-    var valueline = d3.svg.line()
-    	.x(function(d) {return x(d.xAxis); })
-    	.y(function(d) {return y(d.yAxis); })
-    	.interpolate("step-before");
-
-	var lineGraph = svg.append("path")
-						.data(data)
-						.attr("class", "line")
-						.attr("d", valueline(data))
-						.attr("stroke", "blue") 
-						.attr("stroke-width", 2)
-						.attr("fill", "none");*/
-
-/*    svg.append("path")
-    	.datum(data)
-    	.attr("class","line")
-		.attr("d", valueline)
-		.attr("stroke", "blue");function(d){
-			if (d.yAxis == "Student"){
-				return blue;
-			}
-
-		});
-		/*data.forEach(function(d){ 
-			for (var i = 0; i < LocList.length; i++){
-				if (LocList[i] == d.yAxis){
-					return colorlist[i];
-				}	
-			}
-			}));*/
 	
 	// add dots on datapoints
     svg.selectAll("dot")
@@ -577,9 +487,7 @@ function drawGraph(data){
     	.attr("class","circle")
         .attr("r", 3.5)
         .attr("cx", function(d) { return x(d.xAxis); })
-        .attr("cy", function(d) { return y(d.yAxis); })
-		.on("mouseover", tip.show)
-		.on("mouseout", tip.hide);
+        .attr("cy", function(d) { return y(d.yAxis); });
 
 	// get cx cy coordinates
 	var circles = d3.select("#svg2").selectAll(".circle")
@@ -593,12 +501,113 @@ function drawGraph(data){
 
 	cx_list = cx_list.reverse();
 	cy_list = cy_list.reverse();
-	console.log(cx_list);
-	console.log(cy_list);
 
+	// calculate line coordinates
+	var x_line = [];
+	var y_line = [];
 
+	for (var i =0; i < cx_list.length-1; i++){
+		var diff = cy_list[i] - cy_list[i+1];
 
-	
+		if( (diff != 0) || (diff == NaN)){
+			y_line.push(cy_list[i]);
+			y_line.push(cy_list[i]);
+			y_line.push(cy_list[i]);
+			y_line.push(cy_list[i+1]);
+
+			x_line.push(cx_list[i]);
+			x_line.push(cx_list[i+1]);
+			x_line.push(cx_list[i+1]);
+			x_line.push(cx_list[i+1]);
+		}
+		else{
+			y_line.push(cy_list[i]);
+			y_line.push(cy_list[i+1]);
+
+			x_line.push(cx_list[i]);
+			x_line.push(cx_list[i+1]);
+		}
+	}
+
+    // add color gradient
+    var colorlist = ["#66B866", "green", "yellow", "orange", "blue", "grey", "#E6B85C"];
+    var ticklist = [195, 0, 0, 105, 0, 0, 15];
+
+    // add lines for each datapoint
+    var lines = svg.append("g").attr("class", "plot").selectAll("line");
+	for (var h = 0; h < x_line.length-1; h=h+2){ 
+    	console.log(h);
+
+    	//append line
+    	var line = lines.data([1])
+			.enter().append("line");
+
+	    line.each(function(d){
+					
+			d3.select(this)
+				// set coordinates of line
+				.attr("id", "line" + h)
+				.attr({x1 : x_line[h],
+					y1 : y_line[h],
+					x2 : x_line[h+1],
+					y2 : y_line[h+1]
+				})
+				
+				// set styles for line segment
+				.style("stroke", function(d){
+					for (var t = 0; t <colorlist.length; t++){
+						var diff2 = d3.select(this).attr("y1")-d3.select(this).attr("y2");
+						if (diff2== 0){
+							if(d3.select(this).attr("y1") == ticklist[t]){
+								return colorlist[t];
+							}
+						}
+						else{
+							return "DarkGrey";
+						}
+					}
+				})
+				.style("stroke-dasharray", function(d){
+					for (var t = 0; t <colorlist.length; t++){
+						var diff2 = d3.select(this).attr("y1")-d3.select(this).attr("y2");
+						if (diff2== 0){
+							if(d3.select(this).attr("y1") == ticklist[t]){
+								return 0;
+							}
+						}
+						else{
+							return "3, 3";
+						}
+					};
+				})
+				.style("stroke-width", function(d){
+					for (var t = 0; t <colorlist.length; t++){
+						var diff2 = d3.select(this).attr("y1")-d3.select(this).attr("y2");
+						if (diff2== 0){
+							if(d3.select(this).attr("y1") == ticklist[t]){
+								return 2;
+							}
+						}
+						else{
+							return 1;
+						}
+					};
+				})
+			
+		});
+	}
+
+	// again add dots on datapoints
+    svg.selectAll("dot")
+        .data(data)
+    .enter().append("circle")
+    	.attr("class","circle")
+        .attr("r", 3.5)
+        .attr("cx", function(d) { return x(d.xAxis); })
+        .attr("cy", function(d) { return y(d.yAxis); })
+		.on("mouseover", tip.show)
+		.on("mouseout", tip.hide);
+
 	// add the x axis
 	svg.append("g")
 		.attr("class","x axis")
@@ -625,8 +634,66 @@ function drawGraph(data){
         .attr("dy", "1em")
         .text("User");
 
-    // append table checkbox
-    d3.select("#checkbox")
-    	.append("input")
-    	.attr("type", "checkbox")
+    svg.append("text")
+    	.attr("id", "showtext")
+    	.attr("y", height/2)
+    	.attr("x", 150)
+    	.text("Show Table!")
+    	.style("text-decoration", "underline")
+    	.style("opacity", 0.5)
+		.on("click", function(d){
+			return ShowHideTable();
+		});
 }
+
+function ShowHideTable(d){
+	console.log("ShowHideTable!");
+
+	var table = d3.select("#BookTable");
+
+	var state = table.style("visibility");
+	console.log(state);
+
+	var newVisibility;
+
+	if ( state == "hidden"){
+		newVisibility = "visible";
+	}
+	else {
+		newVisibility = "hidden";
+	}
+
+	table.style("visibility", newVisibility);
+}
+
+function Map(d){
+	var width = 400;
+	var height = 400;
+
+	// Add svg canvas
+	var svg = d3.select("#treemap").append("svg")
+			.attr("id","svg3")
+			.attr("width", width )
+			.attr("height", height)
+			.style("visibility", "visible");
+
+	// set up pattern
+	var pattern = svg.append("pattern")
+			.attr("id","pattern")
+			.attr("x", 0)
+			.attr("y", 0)
+			.attr("height", height)
+			.attr("width", width);
+
+	// Add image
+	var imgs = svg.selectAll("image").data([0]);
+                imgs.enter()
+                .append("svg:image")
+                .attr("xlink:href", "../Images/Amsterdam.jpg")
+                .attr("x", 0)
+                .attr("y", 0)
+                .attr("width", width)
+                .attr("height", height);
+
+}
+
