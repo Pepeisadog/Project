@@ -53,6 +53,7 @@ window.onload = function(){
 	  ]
 	}];
 
+	console.log(data);
 	// book circulation data
 	var dataBook = [
 	  {
