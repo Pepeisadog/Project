@@ -93,6 +93,11 @@ g.plot line{
 	padding: 5px;
 }
 
+.labels{
+	width: 9em;
+	word-break: keep all;
+}
+
 #svg1,
 #svg2{
 	display: block;

@@ -40,50 +40,14 @@ reader_books = csv.DictReader(AMFI_books, fieldnames_books, delimiter=';')
 reader_categories = csv.DictReader(AMFI_categories, fieldnames_categories, delimiter = ';')
 reader_domains = csv.DictReader(AMFI_domains, delimiter = ';')
 
-output = {"name": "The library of the University of Applied Sciences", "type":"parent", "children": []}
+output = {"name": "Library of the University of Applied Sciences", "type":"parent", "total":5605, "value":50, "children": []}
 
-i = 0
-# Enter domains
-barcode_domain = []
-for domain in reader_domains:
-    output["children"].append({
-        "type": "domain",
-        "name": domain["Domain"],
-        "barcode": domain["Barcode"],
-        "children": []
-        })
-    barcode_domain.append(domain["Barcode"])
-
-# Enter categories
-barcode_category = []
-names_category = []
-
-for category in reader_categories:
-    barcode_category.append(category["Barcode"])
-    names_category.append(category["Category"])
-
-for i in range(0,len(barcode_domain),1):
-
-    barcode_domain_values = output["children"][i]["barcode"]
-
-    for j in range(0,len(barcode_category),1):
-        if barcode_category[j] < barcode_domain_values:
-            if names_category[j] != "NaN":
-                output["children"][i]["children"].append({
-                "type":"category",
-                "barcode": barcode_category[j],
-                "name": names_category[j],
-                "children": []
-                })
-                names_category[j] = "NaN"
-
-# Enter books
+# get data from reader_books
 barcode_books = []
 names_books = []                
 tags_books = []
 copies = []
 
-# get data from reader_books
 for books in reader_books:
     barcode_books.append(books["Callnumber"])
     names_books.append(books["Title"])
@@ -91,7 +55,10 @@ for books in reader_books:
 
 tags = []
 
-# Modify data
+size_books = len(barcode_books)
+print size_books
+
+# Modify data books
 for k in range(0, len(names_books), 1):
     # count copies
     count = names_books.count(names_books[k])
@@ -110,13 +77,50 @@ for k in range(0, len(names_books), 1):
         for t in range(1,len(indeces),1):
             names_books[indeces[t]] = "NaN"
 
+# Enter domains
+barcode_domain = []
+for domain in reader_domains:
+    output["children"].append({
+        "type": "domain",
+        "name": domain["Domain"],
+        "barcode": domain["Barcode"],
+        "value": 6,
+        "children": []
+        })
+    barcode_domain.append(domain["Barcode"])
+
+# get category data
+barcode_category = []
+names_category = []
+
+for category in reader_categories:
+    barcode_category.append(category["Barcode"])
+    names_category.append(category["Category"])
+
+# Enter categories
+for i in range(0,len(barcode_domain),1):
+
+    barcode_domain_values = output["children"][i]["barcode"]
+
+    for j in range(0,len(barcode_category),1):
+        if barcode_category[j] < barcode_domain_values:
+            if names_category[j] != "NaN":
+                output["children"][i]["children"].append({
+                "type":"category",
+                "barcode": barcode_category[j],
+                "value": 5,
+                "name": names_category[j],
+                "children": []
+                })
+                names_category[j] = "NaN"
+
 lengths = []
 codes_categories =[]
-
-# Enter data in output
+# Enter books in output
 for i in range(0,len(barcode_domain),1):
     lengths.append(len(output["children"][i]["children"]))
     for k in range(0, lengths[i], 1):
+        #counter = 0
         codes_categories = output["children"][i]["children"][k]["barcode"]
         for j in range(0,len(names_books),1):
             if barcode_books[j] < codes_categories:
@@ -125,13 +129,18 @@ for i in range(0,len(barcode_domain),1):
                     "type":"book",
                     "barcode": barcode_books[j],
                     "tags": tags[j],
+                    "value": 2,
                     "name": names_books[j],
                     "copies": copies[j]
                     })
                     names_books[j] = "NaN"
-
+                    #counter = counter + 1
+        #output["children"][i]["children"].append({
+        #    "value": counter
+        #})
+        
 with open('../Data/tree.json', 'w') as f:
 
-json.dump(output, f, indent=True)
+    json.dump(output, f, indent=True)
 
 

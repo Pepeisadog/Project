@@ -1,354 +1,423 @@
 "use strict"
 window.onload = function(){
-	var data = [
-	{
-	  "name": "Library University of Applied Sciences",
-	  "object": "Parent",
-	  "value": 85,
-	  "total": 85000,
-	  "children": [
-	  {
-	    "name":"KSH",
-	    "full_name": "Kohnstammhuis",
-	    "object": "Location",
-	    "value": 50,
-	    "total": 50000,
-	    "location": "Wibautstraat 2-4, Amsterdam",
-	    "children": [
-	      {"name":"Math",
-	  		"value": 4,
-	  		"total": 400 },
-	      {"name":"Philosophy",
-	  		"value": 1,
-	  		"total": 100}
-	    ]
-	  },
-	  {
-	    "name":"AMFI",
-	    "full_name": "Amsterdam Fashion Institute",
-	    "object": "Location",
-	    "value": 6,
-	    "total": 6000,
-	    "location": "Mauritskade 11, Amsterdam",
-	    "type": "grey",
-	    "children":[
-	    {
-	      "name":"Research Methods",
-	      "object": "Category",
-	      "value": 0.5,
-	      "total": 50,
-	      "children": [
-	        {"name":"Foundations of futures studies",
-	        "object": "Book",
-	        "copies": 1,
-	        "value": 1}
-		    ]
-	    },
-	    {"name":"Pop Culture",
-	    "object": "Category",
-		 "value": 0.3,
-		 "total": 30}
-	    ]
-	  }
-	  ]
-	}];
+	queue()
+		.defer(d3.json, "../Data/tree.json")
+		.awaitAll(ready);
 
-	console.log(data);
-	// book circulation data
-	var dataBook = [
-	  {
-	    "User":"CIRCAMFI",
-	    "Date":"08-01-2015",
-	    "Time":"11:02",
-	    "Title":"Foundations of futures studies",
-	    "Barcode":"HV008698",
-	    "Action":"IntIBL",
-	    "DueDate":"none",
-	    "Location":"AMFI",
+	function ready(error, results){
 
-	  },
-	  {
-	    "User":"CIRCKSH",
-	    "Date":"07-01-2015",
-	    "Time":"16:43",
-	    "Title":"Foundations of futures studies",
-	    "Barcode":"HV008698",
-	    "Action":"IntIBL",
-	    "DueDate":"none",
-	    "Location":"KSH"
-	  },
-	  {
-	    "User":"Student",
-	    "Date":"07-01-2015",
-	    "Time":"16:43",
-	    "Title":"Foundations of futures studies",
-	    "Barcode":"HV008698",
-	    "Action":"Regular return",
-	    "DueDate":"12-1-2015",
-	    "Location":"KSH"
-	  },
-	  {
-	    "User":"Student",
-	    "Date":"17-12-2014",
-	    "Time":"14:32",
-	    "Title":"Foundations of futures studies",
-	    "Barcode":"HV008698",
-	    "Action":"Web renewal",
-	    "DueDate":"12-1-2015",
-	    "Location":"AMFI"
-	  },
-	  {
-	    "User":"Student",
-	    "Date":"16-11-2014",
-	    "Time":"09:38",
-	    "Title":"Foundations of futures studies",
-	    "Barcode":"HV008698",
-	    "Action":"Loan",
-	    "DueDate":"18-12-2014",
-	    "Location":"AMFI"
-	  },
-	  {
-	    "User":"Student",
-	    "Date":"17-07-2014",
-	    "Time":"13:11",
-	    "Title":"Foundations of futures studies",
-	    "Barcode":"HV008698",
-	    "Action":"Regular return",
-	    "DueDate":"3-8-2014",
-	    "Location":"AMFI"
-	  },
-	  {
-	    "User":"Student",
-	    "Date":"05-07-2014",
-	    "Time":"11:39",
-	    "Title":"Foundations of futures studies",
-	    "Barcode":"HV008698",
-	    "Action":"Loan",
-	    "DueDate":"3-8-2014",
-	    "Location":"AMFI"
-	  }
-	];
-
-	//=========== Generate the tree diagram =================//
-	var margin = {top: 120, right: 200, bottom: 0, left: 200},
-	 		width = 1000 - margin.right - margin.left,
-	 		height = 600 - margin.top - margin.bottom;
-
-	var i = 0,
-		duration = 750,
-		root;
-
-	// make tree canvas
-	var tree = d3.layout.tree()
-		.size([height, width]);
-
-	// create diagonals to draw links
-	var diagonal = d3.svg.diagonal()
-		.projection(function(d) { return [d.x, d.y]; });
-
-	// make svg canvas
-	var canvas = d3.select("#treemap").append("svg")
-		.attr("id","svg1")
-		.attr("width", width + margin.right + margin.left)
-		.attr("height", height + margin.top + margin.bottom)
-		.append("g")
-			.attr("transform","translate(" + margin.left + "," + margin.top + ")");
-
-	// define the top level of the tree/array
-	root = data[0];
-	root.x0 = height /2;
-	root.y0 = width/2;
-
-    // layout the tree initially and center on the root node.
-    tree.nodes(root).forEach(function(d) { click(d); });
-
-	// draw tree
-	update(root);
-
-	d3.select(self.frameElement).style("height", "500px");
-
-	// draw tree function (source: http://www.d3noob.org/2014/01/tree-diagrams-in-d3js_11.html)
-	function update(source){
-
-		// define tooltip (source: http://bl.ocks.org/Caged/6476579)
-		var tip = d3.tip()
-			.attr("id","treetooltip")
-			.attr("class", "tooltip")
-			.direction(function(d){ 
-				if (d.name == "AMFI"){
-					return "e"
-				}
-				else{
-					return "w"
-				}})
-			.offset(function(d){
-				if(d.name == "AMFI"){
-					return [0,50]
-				}
-				else{
-					return[0,-30]
-				}})
-			.html(function(d){
-				if (d.object == "Parent"){
-					return "<strong> Total Books: </strong>" + d.total
-							+"<br>" +"<strong> Locations: </strong>6"
-							+"<br>" +"<strong> Members: </strong>54.000"
-
-				}
-				if(d.object == "Category") {
-					return "<strong> Total Books: </strong>" + d.total;
-				};
-				if (d.object == "Location"){
-					return "<strong>" + d.full_name +"</strong>" + "<br>"+ 
-							"<strong>Address: </strong>" + d.location + "<br>" 
-							+ "<strong>Total Books: </strong>" + d.total;
-				}
-				if (d.object =="Book"){
-					return "<strong> Copies: </strong>" + d.copies + "<br>" +
-							"<strong> Click to show circulation history! </strong>";
-				}
-			});
-
-		// compute the new tree layout
-		var nodes = tree.nodes(root);
-
-		// get target and source, store in links
-		var links = tree.links(nodes);
-
-		// normalize for fixed-depth of nodes
-		nodes.forEach(function(d) { d.y = d.depth * 150; });
-
-			// update the nodes
-			var node = canvas.selectAll("g.node")
-				.data(nodes, function(d) { return d.id || (d.id = ++i); });
-
-	  	// Enter any new nodes at the parents previous position.	
-			var nodeEnter = node.enter().append("g")
-				.attr("class", "node")
-				//apply transform function to display correctly on screen
-				.attr("transform", function(d) { return "translate(" + source.x0 + "," + source.y0 + ")"; })
-				.on("click", click);
-
-		// create circles for nodes
-		nodeEnter.append("circle")
-			.attr("r", function(d){return d.value})/*function(d) {
-				if (d.value < 2){
-					return 2;
-				}
-				else{
-					return d.value; 
-				}})*/
-			.attr("stroke", "silver")
-			.attr("fill", function(d){ return d._children ? "#b0c0de" : "#ebeff6"; })
-
-		// append & enter node labels
-		nodeEnter.append("text")
-			.attr("y", function(d){ return d.children || d._children ?  -18 : 18 })
-			.attr("dy",".35em")
-			.attr("text-anchor", "middle")
-			.style("font-family", "Courier")
-			.text(function(d) { return d.name; })
-			.style("fill-opacity", 1)
-			.on("mouseover", tip.show)
-			.on("mouseout", tip.hide)
-			.style("text-decoration", function(d){
-				if (d.object =="Book"){
-					return "underline";
-				}
-			})
-			.attr("id", function(d){
-				if(d.object=="Book"){
-					return "clickBook";
-				}
-			})
-			.on("click", function(d){
-				var ids = d3.select(this).attr("id");
-				if ( ids == "clickBook"){
-					return showHide();
-				}
-			});
-
-		// Transition nodes to their new position
-		var nodeUpdate = node.transition()
-			.duration(duration)
-			.attr("transform", function(d) { return "translate(" + d.x + "," + d.y + ")"});
-
-		nodeUpdate.select("circle")
-			.attr("r", function(d) {return d.value})
-			.style("fill", function(d) {return d._children ? "#b0c0de" : "#ebeff6";})
-			.style("border", "3px dotted");
-
-		nodeUpdate.select("text")
-			.style("fill-opacity", 1);
-
-		// Transition existing nodes to the parent's new position.
-		var nodeExit = node.exit().transition()
-			.duration(duration)
-			.attr("transform", function(d) {return "translate(" + source.x + "," + source.y + ")"; })
-			.remove();
-
-		nodeExit.select("circle")
-			.attr("r", 1e-6);
-
-		nodeExit.select("text")
-			.style("fill-opacity", 1e-6);
-
-		// Update the links
-		var link = canvas.selectAll("path.link")
-			.data(links, function(d) { return d.target.id; });
-
-		// enter any new links at the parents previous position
-		link.enter().insert("path","g")
-			.attr("class","link")
-			.attr("d", function(d){
-				var o = {x:source.x0, y:source.y0};
-				return diagonal({source: o, target: o});
-			});
-
-		// transition links to their new position
-		link.transition()
-			.duration(duration)
-			.attr("d", diagonal);
-
-		// transition existing node to the parent's new position.
-		link.exit().transition()
-			.duration(duration)
-			.attr("d", function(d){
-				var o = {x: source.x, y: source.y};
-				return diagonal({source: o, target: o});
-			})
-			.remove();
+		var data = results;
 		
-		// stash the old positions for transition
-		nodes.forEach(function(d) {
-			d.x0 = d.x;
-			d.y0 = d.y;
+		// book circulation data
+		var dataBook = [
+		  {
+		    "User":"CIRCAMFI",
+		    "Date":"08-01-2015",
+		    "Time":"11:02",
+		    "Title":"Foundations of futures studies",
+		    "Barcode":"HV008698",
+		    "Action":"IntIBL",
+		    "DueDate":"none",
+		    "Location":"AMFI",
+
+		  },
+		  {
+		    "User":"CIRCKSH",
+		    "Date":"07-01-2015",
+		    "Time":"16:43",
+		    "Title":"Foundations of futures studies",
+		    "Barcode":"HV008698",
+		    "Action":"IntIBL",
+		    "DueDate":"none",
+		    "Location":"KSH"
+		  },
+		  {
+		    "User":"Student",
+		    "Date":"07-01-2015",
+		    "Time":"16:43",
+		    "Title":"Foundations of futures studies",
+		    "Barcode":"HV008698",
+		    "Action":"Regular return",
+		    "DueDate":"12-1-2015",
+		    "Location":"KSH"
+		  },
+		  {
+		    "User":"Student",
+		    "Date":"17-12-2014",
+		    "Time":"14:32",
+		    "Title":"Foundations of futures studies",
+		    "Barcode":"HV008698",
+		    "Action":"Web renewal",
+		    "DueDate":"12-1-2015",
+		    "Location":"AMFI"
+		  },
+		  {
+		    "User":"Student",
+		    "Date":"16-11-2014",
+		    "Time":"09:38",
+		    "Title":"Foundations of futures studies",
+		    "Barcode":"HV008698",
+		    "Action":"Loan",
+		    "DueDate":"18-12-2014",
+		    "Location":"AMFI"
+		  },
+		  {
+		    "User":"Student",
+		    "Date":"17-07-2014",
+		    "Time":"13:11",
+		    "Title":"Foundations of futures studies",
+		    "Barcode":"HV008698",
+		    "Action":"Regular return",
+		    "DueDate":"3-8-2014",
+		    "Location":"AMFI"
+		  },
+		  {
+		    "User":"Student",
+		    "Date":"05-07-2014",
+		    "Time":"11:39",
+		    "Title":"Foundations of futures studies",
+		    "Barcode":"HV008698",
+		    "Action":"Loan",
+		    "DueDate":"3-8-2014",
+		    "Location":"AMFI"
+		  }
+		];
+
+		//=========== Generate the tree diagram =================//
+		var margin = {top: 120, right: 200, bottom: 0, left: 200},
+		 		width = 1000 - margin.right - margin.left,
+		 		height = 600 - margin.top - margin.bottom;
+		 		
+		var i = 0,
+			duration = 750,
+			root;
+
+		var viewerWidth = width;
+		var viewerHeight = height;
+
+		// define zoom variable
+		var zoom  = d3.behavior.zoom()
+			.scaleExtent([1,5])
+			.on("zoom", zoomed);
+
+		// make tree canvas
+		var tree = d3.layout.tree()
+			.size([viewerHeight, viewerWidth]);
+
+		// create diagonals to draw links
+		var diagonal = d3.svg.diagonal()
+			.projection(function(d) { return [d.x, d.y]; });
+
+		// make svg canvas
+		var svg1 = d3.select("#treemap").append("svg")
+			.attr("id","svg1")
+			.attr("width", viewerWidth + margin.right + margin.left)
+			.attr("height", viewerHeight + margin.top + margin.bottom)
+			.call(zoom)
+			.append("g")
+				.attr("transform","translate(" + margin.left + "," + margin.top + ")")			
+		
+		// append g element to store all nodes and links in
+		var container = svg1.append("g")
+			.attr("transform", "translate(" + margin.left + "," + margin.top + ")")
+
+		var rect = container.append("rect")
+			.attr("width", viewerWidth + margin.right + margin.left)
+		    .attr("height", viewerHeight + margin.top + margin.bottom)
+		    .attr("x", 0 - margin.left)
+		    .attr("y", 0 - margin.bottom - margin.top)
+		    .style("fill", "none")
+		    .style("pointer-events", "all");
+
+		// define the top level of the tree/array
+		root = data[0];
+		root.x0 = viewerHeight /2;
+		root.y0 = viewerWidth/2;
+
+	    // layout the tree initially and center on the root node.
+	    tree.nodes(root).forEach(function(d) { click(d); });
+
+		// draw tree
+		update(root);
+		console.log(root.y0)
+		console.log(root.x0)
+		//centerNode(root);
+
+		d3.select(self.frameElement).style("height", "500px");
+
+		// Define the zoom function for the zoomable tree
+		function zoomed() {
+		    container.attr("transform", "translate(" + d3.event.translate + ")scale(" + d3.event.scale + ")");
+		}
+
+/*		// Function that centers on node when clicked upon
+		function centerNode(source){
+			var scale = zoom.scale();
+			var x = source.y0;
+			var y = source.x0;
+			x = viewerWidth / 2;
+			y = viewerHeight / 2;
+			d3.select("container").transition()
+				.duration(duration)
+				.attr("transform", "translate(" + x + "," + y + ")" + ")scale(" + scale + ")");
+			zoom.scale(scale);
+			zoom.translate([x,y]);
+		}*/
+
+		// draw tree function (source: http://www.d3noob.org/2014/01/tree-diagrams-in-d3js_11.html)
+		function update(source){
+
+			// define tooltip (source: http://bl.ocks.org/Caged/6476579)
+			var tip = d3.tip()
+				.attr("id","treetooltip")
+				.attr("class", "tooltip")
+				.direction(function(d){ 
+					if (d.name == "AMFI"){
+						return "e"
+					}
+					else{
+						return "w"
+					}})
+				.offset(function(d){
+					if(d.name == "AMFI"){
+						return [0,50]
+					}
+					else{
+						return[0,-30]
+					}})
+				.html("tooltip"/*function(d){
+					if (d.object == "parent"){
+						return "<strong> Total Books: </strong>" + d.total
+								+"<br>" +"<strong> Locations: </strong>6"
+								+"<br>" +"<strong> Members: </strong>54.000"
+
+					}
+					if(d.object == "Category") {
+						return "<strong> Total Books: </strong>" + d.value;
+					};
+					if (d.object == "Location"){
+						return "<strong>" + d.name +"</strong>" + "<br>"+ 
+								"<strong>Address: </strong>" + d.location + "<br>" 
+								+ "<strong>Total Books: </strong>" + d.value;
+					}
+					if (d.object =="Book"){
+						return "<strong> Copies: </strong>" + d.copies + "<br>" +
+								"<strong> Click to show circulation history! </strong>";
+					}
+				}*/);
+
+			// compute the new tree layout
+			var nodes = tree.nodes(root);
+
+			// get target and source, store in links
+			var links = tree.links(nodes);
+
+			// normalize for fixed-depth of nodes
+			nodes.forEach(function(d) { d.y = d.depth * 300; });
+
+				// update the nodes with their(new) id's
+				var node = container.selectAll("g.node")
+					.data(nodes, function(d) { return d.id || (d.id = ++i); });
+
+		  	// Enter any new nodes at the parents previous position.	
+				var nodeEnter = node.enter().append("g")
+					.attr("class", "node")
+					//apply transform function to display correctly on screen
+					.attr("transform", function(d) { return "translate(" + source.x0 + "," + source.y0 + ")"; })
+					.on("click", click);
+
+			// create circles for nodes
+			nodeEnter.append("circle")
+				.attr("r", function(d){return d.value})
+				.attr("stroke", "silver")
+				.attr("fill", function(d){ return d._children ? "#b0c0de" : "#ebeff6"; })
+
+			// append & enter node labels
+			nodeEnter.append("text")
+				.attr("class", "nodeLabels")
+				.attr("y", function(d){ 
+					if (d.type == "parent"){
+						return -50;
+					}	
+					else{
+						return 10;
+					}
+					if (d.type == "book"){
+						return 200;
+					}					
+				})
+				.attr("dy", "0.7em")
+				.attr("text-anchor", "middle")
+				.attr("transform", function(d){
+					if (d.type =="book"){
+						return "rotate(-90)";
+					}
+				})
+				.style("font-family", "Courier")
+				.text(function(d) { return d.name; })
+				.style("fill-opacity", 1)
+				.on("mouseover", tip.show)
+				.on("mouseout", tip.hide)
+				.style("text-decoration", function(d){
+					if (d.type =="book"){
+						return "underline";
+					}
+				})
+				.style("font-size", function(d){
+					if (d.type =="book"){
+						return "8px";
+					}
+				})
+				.attr("id", function(d){
+					if(d.type=="book"){
+						return "clickBook";
+					}
+				})
+				.on("click", function(d){
+					var ids = d3.select(this).attr("id");
+					if ( ids == "clickBook"){
+						return showHide();
+					}
+				})
+				.call(wrap, [0]);	
+/*
+			// apply wrap function only on category labels
+			var nodeLabels = d3.selectAll(".nodeLabels")
+
+			nodeLabels.each(function(d){
+				if (nodeLabels.id != "clickBook"){
+					d3.select(this)
+						.call(wrap, [0]);	
+				};
+			})
+*/
+				
+
+			// Transition nodes to their new position
+			var nodeUpdate = node.transition()
+				.duration(duration)
+				.attr("transform", function(d) { return "translate(" + d.x + "," + d.y + ")"});
+
+			nodeUpdate.select("circle")
+				.attr("r", function(d) {return d.value})
+				.style("fill", function(d) {return d._children ? "#b0c0de" : "#ebeff6";})
+				.style("border", "3px dotted");
+
+			nodeUpdate.select("text")
+				.style("fill-opacity", 1);
+
+			// Transition existing nodes to the parent's new position.
+			var nodeExit = node.exit().transition()
+				.duration(duration)
+				.attr("transform", function(d) {return "translate(" + source.x + "," + source.y + ")"; })
+				.remove();
+
+			nodeExit.select("circle")
+				.attr("r", 1e-6);
+
+			nodeExit.select("text")
+				.style("fill-opacity", 1e-6);
+
+			// Update the links
+			var link = container.selectAll("path.link")
+				.data(links, function(d) { return d.target.id; });
+
+			// enter any new links at the parents previous position
+			link.enter().insert("path","g")
+				.attr("class","link")
+				.attr("d", function(d){
+					var o = {x:source.x0, y:source.y0};
+					return diagonal({source: o, target: o});
+				});
+
+			// transition links to their new position
+			link.transition()
+				.duration(duration)
+				.attr("d", diagonal);
+
+			// transition existing node to the parent's new position.
+			link.exit().transition()
+				.duration(duration)
+				.attr("d", function(d){
+					var o = {x: source.x, y: source.y};
+					return diagonal({source: o, target: o});
+				})
+				.remove();
+			
+			// stash the old positions for transition
+			nodes.forEach(function(d) {
+				d.x0 = d.x;
+				d.y0 = d.y;
+			});
+
+			svg1.call(tip);
+		}
+
+		// ================ toggle children on click function =======================//
+		function click(d){
+			if (d.children){
+				d._children = d.children;
+				d.children = null;
+			}
+			else{
+				d.children = d._children;
+				d._children = null;
+			}
+
+			// If the node has a parent, then collapse its child nodes
+			  // except for this clicked node.
+		  if (d.type ==  "category") {
+		  	console.log(d.type)
+		    /*d.children.forEach(function(element) {
+		      if (d !== element) {
+		        collapse(element);
+		      }
+		    });*/
+		  }
+
+			update(d);
+			centerNode(d);
+		}
+
+		//================ Draw graph =============================//
+		drawGraph(dataBook);
+
+		//================ Draw table ============================//
+		tabBook(dataBook,["User", "Date", "Time", "Title", "Barcode","Action","DueDate","Location"]);
+
+		Map();
+		}
+	}
+
+
+
+// Drag and Zoom http://bl.ocks.org/mbostock/6123708
+// From http://bl.ocks.org/mbostock/7555321
+function wrap(text, width) {
+	if (text.id != "clickBook"){
+
+		text.each(function() {
+		    var text = d3.select(this),
+		        words = text.text().split(/\s+/).reverse(),
+		        word,
+		        line = [],
+		        lineNumber = 0,
+		        lineHeight = 0.9,
+		        y = text.attr("y"),
+		        dy = parseFloat(text.attr("dy")),
+		        tspan = text.text(null).append("tspan").attr("x", 0).attr("y", y).attr("dy", dy + "em");
+		    while (word = words.pop()) {
+				line.push(word);
+				tspan.text(line.join(" "));
+				if (tspan.node().getComputedTextLength() > width) {
+					line.pop();
+					tspan.text(line.join(" "));
+					line = [word];
+					tspan = text.append("tspan").attr("x", 0).attr("y", y).attr("dy", ++lineNumber * lineHeight + dy + "em").text(word);
+				}
+		    }
 		});
-
-		canvas.call(tip);
-	}
-
-	// ================ toggle children on click function =======================//
-	function click(d){
-		if (d.children){
-			d._children = d.children;
-			d.children = null;
-		}
-		else{
-			d.children = d._children;
-			d._children = null;
-		}
-
-		update(d);
-	}
-
-	//================ Draw graph =============================//
-	drawGraph(dataBook);
-
-	//================ Draw table ============================//
-	tabBook(dataBook,["User", "Date", "Time", "Title", "Barcode","Action","DueDate","Location"]);
-
-	Map();
+  	};
 }
 
 function showHide(d){
@@ -357,7 +426,6 @@ function showHide(d){
 	var svg = d3.select("#svg2");
 
 	var state = svg.style("visibility");
-	console.log(state);
 
 	var newVisibility;
 
@@ -451,7 +519,7 @@ function drawGraph(data){
 			.attr("id","svg2")
 			.attr("width", width + margin.left + margin.right )
 			.attr("height", height + margin.top + margin.bottom)
-			.style("visibility", "hidden")
+			.style("visibility", "visible")
 		.append("g")
 			.attr("transform",
 				"translate(" + margin.left + "," + margin.top + ")");
@@ -537,7 +605,6 @@ function drawGraph(data){
     // add lines for each datapoint
     var lines = svg.append("g").attr("class", "plot").selectAll("line");
 	for (var h = 0; h < x_line.length-1; h=h+2){ 
-    	console.log(h);
 
     	//append line
     	var line = lines.data([1])
@@ -648,12 +715,10 @@ function drawGraph(data){
 }
 
 function ShowHideTable(d){
-	console.log("ShowHideTable!");
 
 	var table = d3.select("#BookTable");
 
 	var state = table.style("visibility");
-	console.log(state);
 
 	var newVisibility;
 
