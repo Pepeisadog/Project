@@ -8,80 +8,6 @@ window.onload = function(){
 
 		var data = results;
 		
-		// book circulation data
-		var dataBook = [
-		  {
-		    "User":"CIRCAMFI",
-		    "Date":"08-01-2015",
-		    "Time":"11:02",
-		    "Title":"Foundations of futures studies",
-		    "Barcode":"HV008698",
-		    "Action":"IntIBL",
-		    "DueDate":"none",
-		    "Location":"AMFI",
-
-		  },
-		  {
-		    "User":"CIRCKSH",
-		    "Date":"07-01-2015",
-		    "Time":"16:43",
-		    "Title":"Foundations of futures studies",
-		    "Barcode":"HV008698",
-		    "Action":"IntIBL",
-		    "DueDate":"none",
-		    "Location":"KSH"
-		  },
-		  {
-		    "User":"Student",
-		    "Date":"07-01-2015",
-		    "Time":"16:43",
-		    "Title":"Foundations of futures studies",
-		    "Barcode":"HV008698",
-		    "Action":"Regular return",
-		    "DueDate":"12-1-2015",
-		    "Location":"KSH"
-		  },
-		  {
-		    "User":"Student",
-		    "Date":"17-12-2014",
-		    "Time":"14:32",
-		    "Title":"Foundations of futures studies",
-		    "Barcode":"HV008698",
-		    "Action":"Web renewal",
-		    "DueDate":"12-1-2015",
-		    "Location":"AMFI"
-		  },
-		  {
-		    "User":"Student",
-		    "Date":"16-11-2014",
-		    "Time":"09:38",
-		    "Title":"Foundations of futures studies",
-		    "Barcode":"HV008698",
-		    "Action":"Loan",
-		    "DueDate":"18-12-2014",
-		    "Location":"AMFI"
-		  },
-		  {
-		    "User":"Student",
-		    "Date":"17-07-2014",
-		    "Time":"13:11",
-		    "Title":"Foundations of futures studies",
-		    "Barcode":"HV008698",
-		    "Action":"Regular return",
-		    "DueDate":"3-8-2014",
-		    "Location":"AMFI"
-		  },
-		  {
-		    "User":"Student",
-		    "Date":"05-07-2014",
-		    "Time":"11:39",
-		    "Title":"Foundations of futures studies",
-		    "Barcode":"HV008698",
-		    "Action":"Loan",
-		    "DueDate":"3-8-2014",
-		    "Location":"AMFI"
-		  }
-		];
 
 		//=========== Generate the tree diagram =================//
 		var margin = {top: 120, right: 200, bottom: 0, left: 200},
@@ -165,12 +91,12 @@ window.onload = function(){
 		// draw tree function (source: http://www.d3noob.org/2014/01/tree-diagrams-in-d3js_11.html)
 		function update(source){
 
-			 // Compute the new height, function counts total children of root node and sets tree height accordingly.
-	        // This prevents the layout looking squashed when new nodes are made visible or looking sparse when nodes are removed
-	        // This makes the layout more consistent.
+
 	        var levelWidth = [1];
 	        var childCount = function(level, n) {
-
+		 	// Compute the new height, function counts total children of root node and sets tree height accordingly.
+	        // This prevents the layout looking squashed when new nodes are made visible or looking sparse when nodes are removed
+	        // This makes the layout more consistent.
 	            if (n.children && n.children.length > 0) {
 	                if (levelWidth.length <= level + 1) levelWidth.push(0);
 
@@ -278,11 +204,6 @@ window.onload = function(){
 						return "middle";
 					}
 				})
-/*				.attr("transform", function(d){
-					if (d.type =="book"){
-						return "rotate(-90)";
-					}
-				})*/
 				.style("font-family", "Courier")
 				.text(function(d) { return d.name; })
 				.style("fill-opacity", 1)
@@ -306,22 +227,14 @@ window.onload = function(){
 				.on("click", function(d){
 					var ids = d3.select(this).attr("id");
 					if ( ids == "clickBook"){
-						return showHide();
+						// and open random circulation history file
+						var random_num = Math.floor((Math.random() * 199) + 0);
+						var filename = "../Histories/hist" + String(random_num) + ".json";
+						queue()
+						.defer(d3.json, filename)
+						.awaitAll(drawGraph);
 					}
-				})
-				//.call(wrap, [0]);	
-/*
-			// apply wrap function only on category labels
-			var nodeLabels = d3.selectAll(".nodeLabels")
-
-			nodeLabels.each(function(d){
-				if (nodeLabels.id != "clickBook"){
-					d3.select(this)
-						.call(wrap, [0]);	
-				};
-			})
-*/
-				
+				})				
 
 			// Transition nodes to their new position
 			var nodeUpdate = node.transition()
@@ -400,45 +313,9 @@ window.onload = function(){
 		}
 
 		Map();
-		//================ Draw graph =============================//
-		drawGraph(dataBook);
-
-		//================ Draw table ============================//
-		tabBook(dataBook,["User", "Date", "Time", "Title", "Barcode","Action","DueDate","Location"]);
 	
 		}
 	}
-
-
-
-// Drag and Zoom http://bl.ocks.org/mbostock/6123708
-// From http://bl.ocks.org/mbostock/7555321
-/*function wrap(text, width) {
-	if (text.id != "clickBook"){
-
-		text.each(function() {
-		    var text = d3.select(this),
-		        words = text.text().split(/\s+/).reverse(),
-		        word,
-		        line = [],
-		        lineNumber = 0,
-		        lineHeight = 0.9,
-		        y = text.attr("y"),
-		        dy = parseFloat(text.attr("dy")),
-		        tspan = text.text(null).append("tspan").attr("x", 0).attr("y", y).attr("dy", dy + "em");
-		    while (word = words.pop()) {
-				line.push(word);
-				tspan.text(line.join(" "));
-				if (tspan.node().getComputedTextLength() > width) {
-					line.pop();
-					tspan.text(line.join(" "));
-					line = [word];
-					tspan = text.append("tspan").attr("x", 0).attr("y", y).attr("dy", ++lineNumber * lineHeight + dy + "em").text(word);
-				}
-		    }
-		});
-  	};
-}*/
 
 function showHide(d){
 	console.log("Show Hide!");
@@ -503,7 +380,9 @@ function tabBook(data, columns) {
     return table;
 }
 
-function drawGraph(data){
+function drawGraph(error, results){
+	// Load random data
+	var data = results[0]["Circulation History"];
 
 	// set dimensions of graph
 	var margin = {top: 30, right: 20, bottom: 30, left: 50}, 
@@ -544,28 +423,21 @@ function drawGraph(data){
 			.attr("transform",
 				"translate(" + margin.left + "," + margin.top + ")");
 
+	console.log("svg created!")
 	svg.call(tip);
 
 	// parse date
 	data.forEach(function(d){
 		d.xAxis = parseDate.parse(d.Date);
-		if ((d.Action == "IntIBL") || (d.Action == "Web renewal") || (d.Action == "Loan")){
+		if ((d.Action == "IntIBL") || (d.Action == "Renewal") || (d.Action == "Loan")){
 			d.yAxis = d.User.replace("CIRC","");
 		}
-		if(d.Action == "Regular return"){	
+		if(d.Action == "Return"){	
 			d.yAxis = d.Location;
 		}
 	});
 
-/*	data.forEach(function(d){
-		for (var i = 0; i<LocList.length; i++){
-			if (d.yAxis ==LocList[i]){
-				d.LocID == i;
-			}
-
-		}
-	})*/
-
+	console.log(data)
 	// set the domain of x
 	x.domain(d3.extent(data, function(d) { return d.xAxis}));
 	
@@ -993,28 +865,3 @@ function back2Normal(d){
 	}
 
 }
-
-/*		(function repeat(){
-			circle.transition()
-				.duration(150)
-				.attr("r", 5)
-				.transition()
-				.duration(150)
-				.attr("r", 2.5)
-				.each("end", repeat)			
-		})()*/
-
-/*
-	var state = circle.style("visibility");
-	var newVisibility;
-
-	if ( state == "hidden"){
-		newVisibility = "visible";
-	}
-	else {
-		newVisibility = "hidden";
-	}
-
-	circle.style("visibility", newVisibility);*/
-
-//}
