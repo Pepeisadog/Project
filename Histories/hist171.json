@@ -1,0 +1,118 @@
+{
+ "Circulation History": [
+  {
+   "Date": "02-02-2014", 
+   "Action": "Loan", 
+   "User": "Student", 
+   "Location": "AMFI"
+  }, 
+  {
+   "Date": "08-02-2014", 
+   "Action": "Loan", 
+   "User": "Student", 
+   "Location": "KSH"
+  }, 
+  {
+   "Date": "21-03-2014", 
+   "Action": "IntIBL", 
+   "User": "CIRCTBW", 
+   "Location": "KSH"
+  }, 
+  {
+   "Date": "27-03-2014", 
+   "Action": "Return", 
+   "User": "Student", 
+   "Location": "TBW"
+  }, 
+  {
+   "Date": "27-04-2014", 
+   "Action": "Loan", 
+   "User": "Student", 
+   "Location": "AMFI"
+  }, 
+  {
+   "Date": "18-05-2014", 
+   "Action": "IntIBL", 
+   "User": "CIRCAMFI", 
+   "Location": "TBW"
+  }, 
+  {
+   "Date": "25-05-2014", 
+   "Action": "IntIBL", 
+   "User": "CIRCLWB", 
+   "Location": "LWB"
+  }, 
+  {
+   "Date": "06-07-2014", 
+   "Action": "Return", 
+   "User": "Student", 
+   "Location": "TBW"
+  }, 
+  {
+   "Date": "08-08-2014", 
+   "Action": "Return", 
+   "User": "Student", 
+   "Location": "TBW"
+  }, 
+  {
+   "Date": "10-08-2014", 
+   "Action": "Return", 
+   "User": "Student", 
+   "Location": "DML"
+  }, 
+  {
+   "Date": "14-08-2014", 
+   "Action": "Renewal", 
+   "User": "Student", 
+   "Location": "TBW"
+  }, 
+  {
+   "Date": "17-08-2014", 
+   "Action": "Renewal", 
+   "User": "Student", 
+   "Location": "AMFI"
+  }, 
+  {
+   "Date": "08-09-2014", 
+   "Action": "Renewal", 
+   "User": "Student", 
+   "Location": "AMFI"
+  }, 
+  {
+   "Date": "16-09-2014", 
+   "Action": "IntIBL", 
+   "User": "CIRCLWB", 
+   "Location": "DML"
+  }, 
+  {
+   "Date": "07-10-2014", 
+   "Action": "Loan", 
+   "User": "Student", 
+   "Location": "LWB"
+  }, 
+  {
+   "Date": "21-10-2014", 
+   "Action": "Loan", 
+   "User": "Student", 
+   "Location": "LWB"
+  }, 
+  {
+   "Date": "28-10-2014", 
+   "Action": "IntIBL", 
+   "User": "CIRCFB", 
+   "Location": "KSH"
+  }, 
+  {
+   "Date": "05-12-2014", 
+   "Action": "Return", 
+   "User": "Student", 
+   "Location": "FB"
+  }, 
+  {
+   "Date": "21-12-2014", 
+   "Action": "Renewal", 
+   "User": "Student", 
+   "Location": "DML"
+  }
+ ]
+}

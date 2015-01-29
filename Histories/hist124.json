@@ -1,0 +1,34 @@
+{
+ "Circulation History": [
+  {
+   "Date": "07-04-2014", 
+   "Action": "IntIBL", 
+   "User": "CIRCDML", 
+   "Location": "KSH"
+  }, 
+  {
+   "Date": "14-04-2014", 
+   "Action": "Return", 
+   "User": "Student", 
+   "Location": "LWB"
+  }, 
+  {
+   "Date": "16-05-2014", 
+   "Action": "Return", 
+   "User": "Student", 
+   "Location": "KSH"
+  }, 
+  {
+   "Date": "18-07-2014", 
+   "Action": "Renewal", 
+   "User": "Student", 
+   "Location": "AMFI"
+  }, 
+  {
+   "Date": "22-10-2014", 
+   "Action": "Return", 
+   "User": "Student", 
+   "Location": "TBW"
+  }
+ ]
+}

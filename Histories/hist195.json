@@ -1,0 +1,76 @@
+{
+ "Circulation History": [
+  {
+   "Date": "03-01-2014", 
+   "Action": "Return", 
+   "User": "Student", 
+   "Location": "DML"
+  }, 
+  {
+   "Date": "19-01-2014", 
+   "Action": "Loan", 
+   "User": "Student", 
+   "Location": "TBW"
+  }, 
+  {
+   "Date": "24-01-2014", 
+   "Action": "IntIBL", 
+   "User": "CIRCAMFI", 
+   "Location": "DML"
+  }, 
+  {
+   "Date": "29-03-2014", 
+   "Action": "Return", 
+   "User": "Student", 
+   "Location": "AMFI"
+  }, 
+  {
+   "Date": "24-04-2014", 
+   "Action": "Renewal", 
+   "User": "Student", 
+   "Location": "TBW"
+  }, 
+  {
+   "Date": "16-05-2014", 
+   "Action": "IntIBL", 
+   "User": "CIRCKSH", 
+   "Location": "LWB"
+  }, 
+  {
+   "Date": "28-06-2014", 
+   "Action": "IntIBL", 
+   "User": "CIRCDML", 
+   "Location": "KSH"
+  }, 
+  {
+   "Date": "23-07-2014", 
+   "Action": "Renewal", 
+   "User": "Student", 
+   "Location": "AMFI"
+  }, 
+  {
+   "Date": "29-08-2014", 
+   "Action": "Loan", 
+   "User": "Student", 
+   "Location": "AMFI"
+  }, 
+  {
+   "Date": "13-09-2014", 
+   "Action": "IntIBL", 
+   "User": "CIRCAMFI", 
+   "Location": "TBW"
+  }, 
+  {
+   "Date": "21-09-2014", 
+   "Action": "IntIBL", 
+   "User": "CIRCDML", 
+   "Location": "KSH"
+  }, 
+  {
+   "Date": "13-10-2014", 
+   "Action": "Loan", 
+   "User": "Student", 
+   "Location": "FB"
+  }
+ ]
+}
