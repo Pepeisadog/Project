@@ -6,8 +6,6 @@
 
 		<!-- link to styling sheets -->
 		<link rel="stylesheet" type="text/css" href="Tree.css"/>
-		<!-- enter font -->
-		<!--<link href='http://fonts.googleapis.com/css?family=Raleway:700,400' rel='stylesheet' type='text/css'>-->
 
 		<!-- load the d3.js library -->  
 		<script src="../API/d3.v3.js"></script>
@@ -24,22 +22,39 @@
 	</head>
 
 	<body>
-		<header>The wondrous world of the library </header>
+		<header>A look inside the world of the library </header>
 
 		<div id="description">
-			<p>The library of the HvA is spread over six locations throughout Amsterdam. Each location has its own collection and hosts a specific teaching domain. The members of the library include students and employees of the HvA and of the University of Amsterdam (UvA) and external users. Users can lend and return a book at any location, even at the locations of the library of the UvA. For this project, only the locations and the students of the HvA shall be taken into consideration. The library’s collection consists of different sorts of resource types, for this project only books shall be taken into consideration.</p>
+			<p>The library of the HvA is spread over six locations throughout Amsterdam. Each location has its own collection and hosts a specific teaching domain. The members of the library include students and employees of the HvA and of the University of Amsterdam (UvA) and external users. Users can lend and return a book at any location. For this project, the ciruclation of books of specific teaching domains has been visualized.</p>
+
+			<p>By clicking on the treemap, take a look at the collection. By clicking on a book title, a specific book circulation history will show up in a graph. The map of Amsterdam, are marked with circles corresponding to each location. By hovering over the circles, the contact information fo each location will pop up. By hovering over the graphs datapoints, the details of that datapoint shall pop up which tells you at which date, what actions has been taken. Horizontal lines indicates that the book is at a location, indicated by the y Axis. The vertical lines in the graph indicates that a location transition has taken place. A location transition can be triggered by a "Loan" or "Return action". </p>
+
+			<p> Now go on and discover the library! </p>
 		</div>
 
 		<div id="treemap"></div>
-		<div id="checkbox"></div>
+
+		<div id="disclaimer">
+			<p><u> A few notes: </u></p>
+			<p>
+				The circulation history data is unfortunately not real data. The data was generated for excatly this visualiation purpose. 
+				The impression has been made that only three actions can be taken out on each book. There are in fact a dozen actions that can happen to a book. Instead of "regular" renewal there could be a "web" renewal, instead of a "regular" return a late return. There can also be actions that involve actions of the library itself, the so called "Interbibliothecaire leningen". These actions are not taken into the data generator because they are difficult to implement since each action has a different set of rules.
+			</p>
+			<p>
+				Last but not least, the treemap only consists of books of the collection of óne location, the Amsterdam Fashion Center.
+				Since it has the smallest collection, the visualization started out with only this collection. It turned out that even "only" 6000 books are difficult to display in a way that is still pleasing to the eye. For this reason the decision was made to leave the collection of different locations out. 
+			</p>
+		</div>
 
 		<footer>
-			&#169; Sofia Tilon 2015</footer>
-
-
+			&#169; Sofia Tilon 2015
+		</footer>
+		
 		<script>
 
-	//=========== Generate the tree diagram =================//
+	// This section initializes the global variables needed by different functions in tree.js
+
+	// initialize tree diagram variables
 	var margin = {top: 120, right: 200, bottom: 0, left: 200},
 	 		width = 1000 - margin.right - margin.left,
 	 		height = 450 - margin.top - margin.bottom;
@@ -64,7 +79,7 @@
 	var diagonal = d3.svg.diagonal()
 		.projection(function(d) { return [d.y, d.x]; });
 
-	// make svg canvas
+	// initialize main svg canvas
 	var svg1 = d3.select("#treemap").append("svg")
 		.attr("id","svg1")
 		.attr("width", viewerWidth + margin.right + margin.left)
@@ -85,6 +100,14 @@
 	    .style("fill", "none")
 	    .style("pointer-events", "all");
 
+	// define locations list
+	var LocList = ["AMFI", "DML", "FB", "KSH", "LWB", "TBW", "Student"];
+	// define ticklist
+	var ticklist = [195, 165, 135, 105, 75, 45, 15];
+    // define colorlist
+    var colorlist = ["#66B866", "#b866b8", "#66B8B8", "#b8b866", "#668fb8", "#b86666", "#E6B85C"];
+
+    // load treemap json file. When ready, execute ready()
 	queue()
 		.defer(d3.json, "../Data/tree.json")
 		.awaitAll(ready);

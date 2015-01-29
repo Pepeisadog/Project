@@ -1,31 +1,33 @@
 body{
-	font: sans-serif;
 	background-color: Snow;
+	color: #8A8A8A;
+	font: 12px courier;
 }
 
-header{
-	height: 50px;
+header,
+footer,
+#description,
+#disclaimer{
 	width: 700px;
-	font-family: sans-serif;
-	font-size: 40px;
-	text-align: center;
-	border-bottom: 2px dashed;
-	color: grey;
+	font-family: courier;
 	display: block;
 	margin: auto;
+}
+
+
+header{
+	height: 100px;
+	font-size: 40px;
+	border-bottom: 2px dashed; 
+	text-align: center;
 	padding-bottom: 20px;
 	padding-top: 40px;
 }
 
 footer{
-	height: 20px;
-	width: 700px;
-	font-family: courier;
+	height: 20px;	
 	font-size: 16px;
 	text-align: center;
-	color: grey;
-	display: block;
-	margin: auto;
 	padding-top: 40px;
 }
 
@@ -33,39 +35,15 @@ p{
 	line-height: 20px;
 }
 
-#description{
-	height: 250px;
-	width: 700px;
-	font-family: courier;
-	font-size: 12px;
-	display: block;
-	margin: auto;
-}
-
-#svg1{
-	background-color: white;
-	border: 1px dotted;
-	color: grey;
-}
-
 .link {
   fill: none;
-  stroke: #ccc;
+  stroke: #CCCCCC;
   stroke-width: 2px;
-}
-
-#BookTable{
-	margin: auto;
-	margin-top: 30px; 
 }
 
 g.plot line{
 	stroke-width: 2px;
 	stroke: black;
-}
-
-.node{
-	cursor: pointer;
 }
 
 .node circle{
@@ -76,11 +54,6 @@ g.plot line{
 	font: 12px sans-serif;
 }
 
-.line{
-	fill: none;
-	stroke-width: 1px;
-}
-
 .axis path,
 .axis line {
 	fill: none;
@@ -88,6 +61,7 @@ g.plot line{
 	stroke-width: 1px;
 	shape-rendering: crispEdges;
 }
+
 .axis text{
 	font: 11px courier;
 	padding: 5px;
@@ -96,6 +70,26 @@ g.plot line{
 .labels{
 	width: 9em;
 	word-break: keep all;
+}
+
+.circle:hover {
+  fill: red;
+}
+
+#disclaimer,
+#description{
+	height: 350px;
+	font-size: 12px;
+}
+
+#svg1{
+	background-color: white;
+	border: 1px dotted;
+}
+
+#BookTable{
+	margin: auto;
+	margin-top: 30px; 
 }
 
 #svg1{
@@ -121,10 +115,9 @@ g.plot line{
 #tooltip {
   line-height: 1;
   padding: 12px;
-  background: rgba(0, 0, 0, 0.8);
-  color: #fff;
+  background: #000000;
+  color: #FFFFFF;
   border-radius: 2px;
-  font: 12px courier;
 }
 
 #treetooltip{
@@ -132,8 +125,4 @@ g.plot line{
 	padding: 12px;
 	border: 1px dotted silver;
 	font: 12px courier;
-}
-
-.circle:hover {
-  fill: red;
 }

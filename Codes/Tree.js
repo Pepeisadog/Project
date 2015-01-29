@@ -1,12 +1,12 @@
 "use strict"
 
-// Define the zoom function for the zoomable tree
-function zoomed() {
-    container.attr("transform", "translate(" + d3.event.translate + ")scale(" + d3.event.scale + ")");
-}
-
+// Main function:
 function ready(error, results){
 
+	// This function initilizes the webpage when Tree.html 
+	// and the data from the queue is loaded
+
+	// store treemap data
 	var data = results;
 
 	// define the top level of the tree/array
@@ -17,92 +17,59 @@ function ready(error, results){
     // layout the tree initially and center on the root node.
     tree.nodes(root).forEach(function(d) { click(d); });
 
-	// draw tree
+	// update tree
 	update(root);
-	centerNode(root);
 
-	//d3.select(self.frameElement).style("height", "500px");
-
-	Map();
-
+	// draw map
+	drawMap();
 }
 
-// Function that centers on node when clicked upon
-function centerNode(source){
-	var scale = zoom.scale();
-	var x = -source.y0;
-	var y = -source.x0;
-	x = x * scale + viewerWidth / 2;
-	y = y * scale + viewerHeight / 2;
-	d3.select("container").transition()
-		.duration(duration)
-		.attr("transform", "translate(" + x + "," + y + ")" + ")scale(" + scale + ")");
-	zoom.scale(scale);
-	zoom.translate([x,y]);
-}
-
-// ================ toggle children on click function =======================//
-function click(d){
-	if (d.children){
-		d._children = d.children;
-		d.children = null;
-	}
-	else{
-		d.children = d._children;
-		d._children = null;
-	}
-
-	update(d);
-	centerNode(d);
-}
-
-// draw tree function (source: http://www.d3noob.org/2014/01/tree-diagrams-in-d3js_11.html)
+// Draw functions:
 function update(source){
 
+	// This function draws a treemap based upon a treemap json file.
+	// this function is called at the beginning and after every click event
+	// source: http://www.d3noob.org/2014/01/tree-diagrams-in-d3js_11.html
 
-    var levelWidth = [1];
-
-    var childCount = function(level, n) {
- 	// Compute the new height, function counts total children of root node and sets tree height accordingly.
-    // This prevents the layout looking squashed when new nodes are made visible or looking sparse when nodes are removed
-    // This makes the layout more consistent.
-        if (n.children && n.children.length > 0) {
-            if (levelWidth.length <= level + 1) levelWidth.push(0);
-
-            levelWidth[level + 1] += n.children.length;
-            n.children.forEach(function(d) {
-                childCount(level + 1, d);
-            });
-        }
-    };
-    childCount(0, root);
-    var newHeight = d3.max(levelWidth) * 25; // 25 pixels per line  
-    tree = tree.size([newHeight, viewerWidth]);
-
+	// calculate new tree size
+	updateTree();
 
 	// define tooltip (source: http://bl.ocks.org/Caged/6476579)
 	var tip = d3.tip()
 		.attr("id","treetooltip")
 		.attr("class", "tooltip")
-		.direction("n")
-		.offset(function(d){
-			if(d.name == "AMFI"){
-				return [0,50]
+		.direction(function(d){
+			if (d.type == "parent") {
+				return "n";
 			}
 			else{
-				return[0,-30]
-			}})
+				return "w";
+			}
+		})
+		.offset(function(d){
+			if(d.type == "parent"){
+				return [-20, 0]
+			}
+			else {
+				return [0, -30];
+			}
+		})
 		.html(function(d){
 			if (d.type == "parent"){
 				return "<strong> Total Books: </strong>85.210" 
 						+"<br>" +"<strong> Locations: </strong>6"
-						+"<br>" +"<strong> Members: </strong>54.000"
-
+						+"<br>" +"<strong> Members: </strong>54.000";
 			}
 			if (d.type =="book"){
 				return "<strong> Title: </strong>" + d.name + "<br>" +
 						"<strong> Copies: </strong>" + d.copies + "<br>" +
 						"<strong> Click to show circulation history! </strong>";
+			}
+			if (d.type =="domain"){
+				return "<strong> Domain: </strong>" + d.name; 
+			}
+			if (d.type =="category"){
+				return "<strong> Category: </strong>" + d.name;
 			}
 		});
 
@@ -117,7 +84,7 @@ function update(source){
 		return d.y = (d.depth*1.5) * 120; 	
 	});
 
-	// update the nodes with their(new) id's
+	// update the nodes with their (new) id's
 	var node = container.selectAll("g.node")
 		.data(nodes, function(d) { return d.id || (d.id = ++i); });
 
@@ -130,7 +97,7 @@ function update(source){
 
 	// create circles for nodes
 	nodeEnter.append("circle")
-		.attr("r", function(d){return d.value})
+		.attr("r", function(d) { return d.value})
 		.attr("stroke", "silver")
 		.attr("fill", function(d) { 
 			if (d._children){ 
@@ -144,13 +111,13 @@ function update(source){
 	// append & enter node labels
 	nodeEnter.append("text")
 		.attr("class", "nodeLabels")
-		.attr("y", function(d){ 
-			if (d.type == "parent"){
-				return -50;
-			}	
+		.attr("y", function(d){
+			if ((d.type == "domain")||(d.type == "category")){
+				return -10;
+			}
 			else{
 				return 0;
-			}				
+			}
 		})
 		.attr("dx", "0.7em")
 		.attr("text-anchor", function(d){
@@ -162,7 +129,7 @@ function update(source){
 			}
 		})
 		.style("font-family", "Courier")
-		.text(function(d) { return d.name; })
+		.text(function(d) { return d.name;})
 		.style("fill-opacity", 1)
 		.on("mouseover", tip.show)
 		.on("mouseout", tip.hide)
@@ -179,23 +146,11 @@ function update(source){
 		.attr("id", function(d){
 			if(d.type=="book"){
 				return "clickBook";
-			}
+			};
 		})
 		.on("click", function(d){
 			var ids = d3.select(this).attr("id");
-			if ( ids == "clickBook"){
-				// if svg is already present remove
-				if (d3.select("#svg2")){
-					d3.select("#svg2").remove();
-				};
-				// and open random circulation history file
-				var random_num = Math.floor((Math.random() * 199) + 0);
-				var filename = "../Histories/hist" + String(random_num) + ".json";
-				queue()
-				.defer(d3.json, filename)
-				.awaitAll(drawGraph);
-			}
-		})				
+			callSVG(ids); })				
 
 	// Transition nodes to their new position
 	var nodeUpdate = node.transition()
@@ -265,6 +220,10 @@ function update(source){
 }
 
 function drawGraph(error, results){
+
+	// This function draws a circulation history graph
+	// the input is a random json circulation history file
+
 	// Load random data
 	var data = results[0]["Circulation History"];
 
@@ -275,9 +234,6 @@ function drawGraph(error, results){
 
     // parse date
 	var parseDate = d3.time.format("%d-%m-%Y");
-
-	// define locations list
-	var LocList = ["AMFI", "DML", "FB", "KSH", "LWB", "TBW", "Student"];
 
 	// set range x and y axes
 	var x = d3.time.scale().range([0, width]);
@@ -312,12 +268,7 @@ function drawGraph(error, results){
 	// parse date
 	data.forEach(function(d){
 		d.xAxis = parseDate.parse(d.Date);
-		if ((d.Action == "IntIBL") || (d.Action == "Renewal") || (d.Action == "Loan")){
-			d.yAxis = d.User.replace("CIRC","");
-		};
-		if(d.Action == "Return"){	
-			d.yAxis = d.Location;
-		};
+		d.yAxis = d.Location
 	});
 
 	// set the domain of x
@@ -341,9 +292,6 @@ function drawGraph(error, results){
 		cx_list.push(d3.select(this).attr("cx"));
 		cy_list.push(d3.select(this).attr("cy"));
 	});
-
-	cx_list = cx_list.reverse();
-	cy_list = cy_list.reverse();
 
 	// calculate line coordinates
 	var x_line = [];
@@ -372,10 +320,6 @@ function drawGraph(error, results){
 		}
 	}
 
-    // add color
-    var colorlist = ["#66B866", "#b866b8", "#66B8B8", "#b8b866", "#668fb8", "#b86666", "#E6B85C"];
-    var ticklist = [195, 165, 135, 105, 75, 45, 15];
-
     // add lines for each datapoint
     var lines = svg.append("g").attr("class", "plot").selectAll("line");
 
@@ -385,68 +329,7 @@ function drawGraph(error, results){
     	var line = lines.data([1])
 			.enter().append("line");
 
-	    line.each(function(d){			
-
-			d3.select(this)
-				// set coordinates of line
-				.attr({x1 : x_line[h],
-					y1 : y_line[h],
-					x2 : x_line[h+1],
-					y2 : y_line[h+1]
-				})
-				// append class attributes
-				.attr("class", function(d){
-					for (var h = 0; h < ticklist.length; h++){
-						if (d3.select(this).attr("y1") == ticklist[h]){
-							var class1 = LocList[h];
-						};
-						if (d3.select(this).attr("y2") == ticklist[h]){
-							var class2 = LocList[h];
-						};						
-					};
-					return "'" + class1 + "-" + class2 + "'";
-				})
-				// set styles for line segment
-				.style("stroke", function(d){
-					for (var t = 0; t <colorlist.length; t++){
-						var diff2 = d3.select(this).attr("y1")-d3.select(this).attr("y2");
-						if (diff2== 0){
-							if(d3.select(this).attr("y1") == ticklist[t]){
-								return colorlist[t];
-							};
-						}
-						else{
-							return "DarkGrey";
-						};
-					};
-				})
-				.style("stroke-dasharray", function(d){
-					for (var t = 0; t <colorlist.length; t++){
-						var diff2 = d3.select(this).attr("y1")-d3.select(this).attr("y2");
-						if (diff2== 0){
-							if(d3.select(this).attr("y1") == ticklist[t]){
-								return 0;
-							};
-						}
-						else{
-							return "3, 3";
-						};
-					};
-				})
-				.style("stroke-width", function(d){
-					for (var t = 0; t <colorlist.length; t++){
-						var diff2 = d3.select(this).attr("y1")-d3.select(this).attr("y2");
-						if (diff2== 0){
-							if(d3.select(this).attr("y1") == ticklist[t]){
-								return 2;
-							};
-						}
-						else{
-							return 1;
-						};
-					};
-				})
-		});
+	    line.each(function(d){styleLine(this, h, x_line, y_line)});
 	}
 
 	// add another set of transparent lines that respond to mouse events
@@ -458,36 +341,10 @@ function drawGraph(error, results){
     	var line = lines.data([1])
 			.enter().append("line");
 
-	    line.each(function(d){			
-
-			d3.select(this)
-				// set coordinates of line
-				.attr({x1 : x_line[h],
-					y1 : y_line[h],
-					x2 : x_line[h+1],
-					y2 : y_line[h+1]
-				})
-				// append class attributes
-				.attr("class", function(d){
-					for (var h = 0; h < ticklist.length; h++){
-						if (d3.select(this).attr("y1") == ticklist[h]){
-							var class1 = LocList[h];
-						}
-						if (d3.select(this).attr("y2") == ticklist[h]){
-							var class2 = LocList[h];
-						}						
-					}
-					return "'" + class1 + "-" + class2 + "'";
-				})
-				// set styles for line segment
-				.style("stroke", "transparent")
-				.style("stroke-width", 9)
-				.on("mouseover", mapLines)
-				.on("mouseout", back2Normal)
-		});
+	    line.each(function(d){styleLine2(this, h, x_line, y_line)});			
 	}
 
-	// again add dots on datapoints
+	// add dots again
     svg.selectAll("dot")
         .data(data)
     	.enter().append("circle")
@@ -525,7 +382,10 @@ function drawGraph(error, results){
         .text("User");
 }
 
-function Map(d){
+function drawMap(d){
+
+	// This function draws the map that displays the locations
+
 	var width = 400;
 	var height = 400;
 	
@@ -545,6 +405,7 @@ function Map(d){
 			.attr("width", width);
 
 	// add image of Amsterdam as background
+	// source image: ESRI ArcMap 2012
 	var imgs = svg.selectAll("image").data([0]);
                 imgs.enter()
                 .append("svg:image")
@@ -554,12 +415,10 @@ function Map(d){
                 .attr("width", width)
                 .attr("height", height);
 
-    var colorlist = ["#66B866", "#b866b8", "#66B8B8", "#b8b866", "#668fb8", "#b86666", "#E6B85C"];
-    var LocList = ["AMFI", "DML", "FB", "KSH", "LWB", "TBW", "Student"];
     var loc_x = [220, 100, 265, 212, 225, 265, 200];
     var loc_y = [165, 150, 280, 168, 188, 300, 60];
 
-    // draw lines that connect each location
+    // draw lines that connect locations
 	for (var i = 0; i < loc_x.length; i++){
 	    for (var j = 0; j < loc_x.length; j++){
 		    var line_loc = svg.append("line")
@@ -575,7 +434,7 @@ function Map(d){
     	}
 	}
 
-	// define tooltip
+	// define tooltip (source: http://bl.ocks.org/Caged/6476579)
 	var tip = d3.tip()
 		.attr("id","maptooltip")
 		.attr("class", "tooltip")
@@ -628,7 +487,189 @@ function Map(d){
     svg.call(tip);
 }
 
+function styleLine(d, x, list1, list2){
+	
+	// This function styles the graphlines
+
+	var h = x;
+	var x_line = list1;
+	var y_line = list2;
+
+	d3.select(d)
+		// set coordinates of line
+		.attr({x1 : x_line[h],
+			y1 : y_line[h],
+			x2 : x_line[h+1],
+			y2 : y_line[h+1]
+		})
+		// append class attributes
+		.attr("class", function(d){
+			for (var h = 0; h < ticklist.length; h++){
+				if (d3.select(this).attr("y1") == ticklist[h]){
+					var class1 = LocList[h];
+				};
+				if (d3.select(this).attr("y2") == ticklist[h]){
+					var class2 = LocList[h];
+				};						
+			};
+			return "'" + class1 + "-" + class2 + "'";
+		})
+		// set styles for line segment
+		.style("stroke", function(d){
+			for (var t = 0; t <colorlist.length; t++){
+				var diff2 = d3.select(this).attr("y1")-d3.select(this).attr("y2");
+				if (diff2== 0){
+					if(d3.select(this).attr("y1") == ticklist[t]){
+						return colorlist[t];
+					};
+				}
+				else{
+					return "DarkGrey";
+				};
+			};
+		})
+		.style("stroke-dasharray", function(d){
+			for (var t = 0; t <colorlist.length; t++){
+				var diff2 = d3.select(this).attr("y1")-d3.select(this).attr("y2");
+				if (diff2== 0){
+					if(d3.select(this).attr("y1") == ticklist[t]){
+						return 0;
+					};
+				}
+				else{
+					return "3, 3";
+				};
+			};
+		})
+		.style("stroke-width", function(d){
+			for (var t = 0; t <colorlist.length; t++){
+				var diff2 = d3.select(this).attr("y1")-d3.select(this).attr("y2");
+				if (diff2== 0){
+					if(d3.select(this).attr("y1") == ticklist[t]){
+						return 2;
+					};
+				}
+				else{
+					return 1;
+				};
+			};
+		})
+}
+
+function styleLine2(d, x, list1, list2){
+
+	// This function styles the transparent graphlines
+
+	var h  = x;
+	var x_line = list1;
+	var y_line = list2;
+
+	d3.select(d)
+		// set coordinates of line
+		.attr({x1 : x_line[h],
+			y1 : y_line[h],
+			x2 : x_line[h+1],
+			y2 : y_line[h+1]
+		})
+		// append class attributes
+		.attr("class", function(d){
+			for (var h = 0; h < ticklist.length; h++){
+				if (d3.select(this).attr("y1") == ticklist[h]){
+					var class1 = LocList[h];
+				}
+				if (d3.select(this).attr("y2") == ticklist[h]){
+					var class2 = LocList[h];
+				}						
+			}
+			return "'" + class1 + "-" + class2 + "'";
+		})
+		// set styles for line segment
+		.style("stroke", "transparent")
+		.style("stroke-width", 9)
+		.on("mouseover", mapLines)
+		.on("mouseout", back2Normal)
+}
+
+// Interactivity functions:
+
+function click(d){
+
+	// This function toggles children on click-node event
+	// source: http://www.d3noob.org/2014/01/tree-diagrams-in-d3js_11.html
+
+	if (d.children){
+		d._children = d.children;
+		d.children = null;
+	}
+	else{
+		d.children = d._children;
+		d._children = null;
+	}
+
+	// update treemap
+	update(d);
+}
+
+function updateTree(d){
+
+	// This function calculate a new tree size to evely space the nodes.
+	// source: http://bl.ocks.org/robschmuecker/7880033
+
+    var levelWidth = [1];
+
+    var childCount = function(level, n) {
+
+ 	// count total children of root node
+
+        if (n.children && n.children.length > 0) {
+            if (levelWidth.length <= level + 1) levelWidth.push(0);
+
+            levelWidth[level + 1] += n.children.length;
+            n.children.forEach(function(d) {
+                childCount(level + 1, d);
+            });
+        }
+    };
+
+    var pixelline = 30;
+    childCount(0, root);
+    var newHeight = d3.max(levelWidth) * pixelline;
+    tree = tree.size([newHeight, viewerWidth]);
+}
+
+function callSVG(d){
+
+	// This function calls a new svg and a new circulation history file 
+	// after clicking on a book in the treemap.
+
+	if ( d == "clickBook"){
+
+		// if svg is already present remove it
+		if (d3.select("#svg2")){
+			d3.select("#svg2").remove();
+		};
+
+		// open random circulation history file
+		var random_num = Math.floor((Math.random() * 199) + 0);
+		var filename = "../Histories/hist" + String(random_num) + ".json";
+		
+		queue()
+		.defer(d3.json, filename)
+		.awaitAll(drawGraph);
+	}
+}
+
+function zoomed() {
+
+	// This function transforms the container containing the tree map 
+	// to a larger or smaller scale on a zoom mousevent
+
+    container.attr("transform", "translate(" + d3.event.translate + ")scale(" + d3.event.scale + ")");
+}
+
 function mapLines(d){	
+
+	// This function checks if a graphline corresponds to a mapline
 
 	// store clicked line in var
 	var line_class = d3.select(this).attr("class");
@@ -668,8 +709,9 @@ function mapLines(d){
 	}
 }
 
-
 function showHideLine(d){
+
+	// This function shows or hides the maplines
 
 	var line = d3.select(d);
 	var state = line.style("visibility");
@@ -685,10 +727,13 @@ function showHideLine(d){
 
 	// apply new visibility state
 	line.style("visibility", newVisibility);
-
 }
-	
+
 function back2Normal(d){
+
+	// This function puts the map back into its original state
+
+	// radius of circles back to normal
 	var locationCircles = d3.selectAll(".locationCircles");
 	for (var t = 0; t < locationCircles[0].length; t++){
 		var radius = d3.select(locationCircles[0][t]).attr("r");
@@ -697,6 +742,7 @@ function back2Normal(d){
 		}
 	}
 
+	// locationlines back to hidden
 	var locationLines = d3.selectAll(".locationLines");
 	for (var t = 0; t < locationLines[0].length; t++){
 		var visible = d3.select(locationLines[0][t]).style("visibility");
@@ -704,5 +750,4 @@ function back2Normal(d){
 			d3.select(locationLines[0][t]).style("visibility", "hidden");
 		}
 	}
-
 }

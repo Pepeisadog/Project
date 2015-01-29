@@ -14,7 +14,7 @@ from datetime import timedelta
 Fieldnames = ("User", "Date", "Action", "Location")
 
 Users = ("CIRCAMFI", "CIRCDML", "CIRCFB", "CIRCKSH", "CIRCLWB", "CIRCTBW")
-Actions = ("Loan", "Return", "Renewal", "IntIBL")
+Actions = ("Loan", "Renewal", "Return")
 Locations = ("AMFI", "DML", "FB", "KSH", "LWB", "TBW")
 
 def random_date():
@@ -45,26 +45,31 @@ for i in range(0,200,1):
     user_list = [];
     location_list = [];
     
-    random_int = randint(5,20)
+    random_int = randint(5,21)
     
-    print i
     # get random data
     for k in range (0, random_int, 1):
         
-        date_list.append(random_date())        
-        action =random.choice(Actions)
-        action_list.append(action)
-        if action == Actions[3]:
-            user_list.append(random.choice(Users))          
-        else:
-            user_list.append("Student")    
-            
-        location_list.append(random.choice(Locations)) 
+        date_list.append(random_date()) 
+        if k%3 == 0:
+            action_list.append(Actions[0])
+            user_list.append("Student")
+            location_list.append("Student")
+        elif k%3 == 1:
+            action_list.append(Actions[1])
+            user_list.append("Student")
+            location_list.append("Student")
+        elif k%3 == 2:
+            action_list.append(Actions[2])
+            user_list.append("Student")
+            location_list.append(random.choice(Locations))     
+        
 
-    #s ort date lists
+    # sort date lists
     date_list.sort(key=sorting)
     
     # write data to file
+    
     # create filename
     i_new = str(i)
     filename = "hist"+ i_new +'.json'     
@@ -86,14 +91,6 @@ for i in range(0,200,1):
 
     # write to jsonfile
     json.dump(out, jsonfile, indent=True)
-     
-print out
-print date_list
-print action_list
-print user_list
-print location_list
-    
-    
-    
+
     
     

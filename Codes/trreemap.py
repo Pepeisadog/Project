@@ -33,9 +33,11 @@ AMFI_books = open("..\Data\AMFI_encoded.csv","r")
 AMFI_categories = open("..\Data\AMFIcategories_encoded.csv","r")
 AMFI_domains = open("..\Data\AMFIdomains_encoded.csv","r")
 
+# define fieldnames
 fieldnames_books = ("Callnumber","Barcode","Title","Year","Location")
 fieldnames_categories = ("Barcode","Category")
 
+# put data in reader
 reader_books = csv.DictReader(AMFI_books, fieldnames_books, delimiter=';')
 reader_categories = csv.DictReader(AMFI_categories, fieldnames_categories, delimiter = ';')
 reader_domains = csv.DictReader(AMFI_domains, delimiter = ';')
@@ -56,7 +58,6 @@ for books in reader_books:
 tags = []
 
 size_books = len(barcode_books)
-print size_books
 
 # Modify data books
 for k in range(0, len(names_books), 1):
@@ -114,9 +115,10 @@ for i in range(0,len(barcode_domain),1):
                 })
                 names_category[j] = "NaN"
 
+# append data to output
 lengths = []
 codes_categories =[]
-# Enter books in output
+
 for i in range(0,len(barcode_domain),1):
     lengths.append(len(output["children"][i]["children"]))
     for k in range(0, lengths[i], 1):
@@ -134,11 +136,9 @@ for i in range(0,len(barcode_domain),1):
                     "copies": copies[j]
                     })
                     names_books[j] = "NaN"
-                    #counter = counter + 1
-        #output["children"][i]["children"].append({
-        #    "value": counter
-        #})
+
         
+# write data to file
 with open('../Data/tree.json', 'w') as f:
 
     json.dump(output, f, indent=True)
