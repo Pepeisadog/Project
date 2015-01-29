@@ -1,76 +1,40 @@
 {
  "Circulation History": [
   {
-   "Date": "11-03-2014", 
-   "Action": "Renewal", 
-   "User": "Student", 
-   "Location": "AMFI"
-  }, 
-  {
-   "Date": "16-03-2014", 
+   "Date": "28-03-2014", 
    "Action": "Loan", 
    "User": "Student", 
-   "Location": "FB"
+   "Location": "Student"
   }, 
   {
-   "Date": "16-04-2014", 
-   "Action": "Loan", 
-   "User": "Student", 
-   "Location": "KSH"
-  }, 
-  {
-   "Date": "24-04-2014", 
+   "Date": "28-04-2014", 
    "Action": "Renewal", 
    "User": "Student", 
-   "Location": "KSH"
+   "Location": "Student"
   }, 
   {
-   "Date": "10-07-2014", 
-   "Action": "Return", 
-   "User": "Student", 
-   "Location": "TBW"
-  }, 
-  {
-   "Date": "18-08-2014", 
-   "Action": "Loan", 
-   "User": "Student", 
-   "Location": "KSH"
-  }, 
-  {
-   "Date": "09-09-2014", 
-   "Action": "Renewal", 
-   "User": "Student", 
-   "Location": "TBW"
-  }, 
-  {
-   "Date": "18-09-2014", 
+   "Date": "01-07-2014", 
    "Action": "Return", 
    "User": "Student", 
    "Location": "DML"
   }, 
   {
-   "Date": "28-10-2014", 
-   "Action": "IntIBL", 
-   "User": "CIRCTBW", 
-   "Location": "DML"
-  }, 
-  {
-   "Date": "07-12-2014", 
+   "Date": "19-08-2014", 
    "Action": "Loan", 
    "User": "Student", 
-   "Location": "KSH"
+   "Location": "Student"
   }, 
   {
-   "Date": "17-12-2014", 
+   "Date": "04-10-2014", 
    "Action": "Renewal", 
    "User": "Student", 
-   "Location": "FB"
+   "Location": "Student"
   }, 
   {
-   "Date": "30-12-2014", 
+   "Date": "25-12-2014", 
    "Action": "Return", 
    "User": "Student", 
-   "Location": "LWB"
+   "Location": "TBW"
   }
  ]
 }

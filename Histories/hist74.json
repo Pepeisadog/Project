@@ -1,106 +1,46 @@
 {
  "Circulation History": [
   {
-   "Date": "04-01-2014", 
-   "Action": "IntIBL", 
-   "User": "CIRCLWB", 
-   "Location": "AMFI"
-  }, 
-  {
-   "Date": "26-01-2014", 
-   "Action": "Renewal", 
-   "User": "Student", 
-   "Location": "KSH"
-  }, 
-  {
-   "Date": "03-03-2014", 
-   "Action": "Renewal", 
-   "User": "Student", 
-   "Location": "AMFI"
-  }, 
-  {
-   "Date": "23-03-2014", 
-   "Action": "IntIBL", 
-   "User": "CIRCLWB", 
-   "Location": "TBW"
-  }, 
-  {
-   "Date": "31-03-2014", 
-   "Action": "Return", 
-   "User": "Student", 
-   "Location": "LWB"
-  }, 
-  {
-   "Date": "05-04-2014", 
-   "Action": "IntIBL", 
-   "User": "CIRCAMFI", 
-   "Location": "LWB"
-  }, 
-  {
-   "Date": "19-04-2014", 
-   "Action": "Renewal", 
-   "User": "Student", 
-   "Location": "FB"
-  }, 
-  {
-   "Date": "16-05-2014", 
-   "Action": "Return", 
-   "User": "Student", 
-   "Location": "LWB"
-  }, 
-  {
-   "Date": "11-06-2014", 
-   "Action": "Return", 
-   "User": "Student", 
-   "Location": "FB"
-  }, 
-  {
-   "Date": "17-07-2014", 
-   "Action": "Return", 
-   "User": "Student", 
-   "Location": "TBW"
-  }, 
-  {
-   "Date": "01-08-2014", 
-   "Action": "IntIBL", 
-   "User": "CIRCAMFI", 
-   "Location": "KSH"
-  }, 
-  {
-   "Date": "26-08-2014", 
-   "Action": "IntIBL", 
-   "User": "CIRCFB", 
-   "Location": "FB"
-  }, 
-  {
-   "Date": "01-09-2014", 
-   "Action": "Return", 
-   "User": "Student", 
-   "Location": "KSH"
-  }, 
-  {
-   "Date": "23-09-2014", 
-   "Action": "IntIBL", 
-   "User": "CIRCTBW", 
-   "Location": "DML"
-  }, 
-  {
-   "Date": "13-10-2014", 
-   "Action": "IntIBL", 
-   "User": "CIRCTBW", 
-   "Location": "AMFI"
-  }, 
-  {
-   "Date": "11-11-2014", 
+   "Date": "06-01-2014", 
    "Action": "Loan", 
    "User": "Student", 
-   "Location": "TBW"
+   "Location": "Student"
   }, 
   {
-   "Date": "14-12-2014", 
-   "Action": "IntIBL", 
-   "User": "CIRCLWB", 
-   "Location": "TBW"
+   "Date": "16-03-2014", 
+   "Action": "Renewal", 
+   "User": "Student", 
+   "Location": "Student"
+  }, 
+  {
+   "Date": "26-04-2014", 
+   "Action": "Return", 
+   "User": "Student", 
+   "Location": "KSH"
+  }, 
+  {
+   "Date": "05-06-2014", 
+   "Action": "Loan", 
+   "User": "Student", 
+   "Location": "Student"
+  }, 
+  {
+   "Date": "30-06-2014", 
+   "Action": "Renewal", 
+   "User": "Student", 
+   "Location": "Student"
+  }, 
+  {
+   "Date": "03-07-2014", 
+   "Action": "Return", 
+   "User": "Student", 
+   "Location": "AMFI"
+  }, 
+  {
+   "Date": "04-09-2014", 
+   "Action": "Loan", 
+   "User": "Student", 
+   "Location": "Student"
   }
  ]
 }
