@@ -1,340 +1,268 @@
 "use strict"
-window.onload = function(){
 
-	//=========== Generate the tree diagram =================//
-	var margin = {top: 120, right: 200, bottom: 0, left: 200},
-	 		width = 1000 - margin.right - margin.left,
-	 		height = 450 - margin.top - margin.bottom;
-
-	var i = 0,
-		duration = 750,
-		root;
-
-	var viewerWidth = width;
-	var viewerHeight = height;
-
-	// define zoom variable
-	var zoom  = d3.behavior.zoom()
-		.scaleExtent([-10,10])
-		.on("zoom", zoomed);
-
-	// make tree canvas
-	var tree = d3.layout.tree()
-		.size([viewerHeight, viewerWidth]);
-
-	// create diagonals to draw links
-	var diagonal = d3.svg.diagonal()
-		.projection(function(d) { return [d.y, d.x]; });
-
-	// make svg canvas
-	var svg1 = d3.select("#treemap").append("svg")
-		.attr("id","svg1")
-		.attr("width", viewerWidth + margin.right + margin.left)
-		.attr("height", viewerHeight + margin.top + margin.bottom)
-		.call(zoom)
-		.append("g")
-		.attr("transform","translate(" + margin.left + "," + margin.top + ")")			
-	
-	// append g element to store all nodes and links in
-	var container = svg1.append("g")
-		.attr("transform", "translate(" + margin.left + "," + margin.top + ")")
-
-	var rect = container.append("rect")
-		.attr("width", viewerWidth + margin.right + margin.left)
-	    .attr("height", viewerHeight + margin.top + margin.bottom)
-	    .attr("x", 0 - margin.left)
-	    .attr("y", 0 - margin.bottom - margin.top)
-	    .style("fill", "none")
-	    .style("pointer-events", "all");
-
-	// Define the zoom function for the zoomable tree
-	function zoomed() {
-	    container.attr("transform", "translate(" + d3.event.translate + ")scale(" + d3.event.scale + ")");
-	}
-
-	queue()
-		.defer(d3.json, "../Data/tree.json")
-		.awaitAll(ready);
-
-	function ready(error, results){
-
-		var data = results;
-
-		// define the top level of the tree/array
-		root = data[0];
-		root.x0 = viewerHeight /2;
-		root.y0 = viewerWidth/2;
-
-	    // layout the tree initially and center on the root node.
-	    tree.nodes(root).forEach(function(d) { click(d); });
-
-		// draw tree
-		update(root);
-		centerNode(root);
-
-		//d3.select(self.frameElement).style("height", "500px");
-
-		Map();
-	
-	}
-	
-	// Function that centers on node when clicked upon
-	function centerNode(source){
-		var scale = zoom.scale();
-		var x = -source.y0;
-		var y = -source.x0;
-		x = x * scale + viewerWidth / 2;
-		y = y * scale + viewerHeight / 2;
-		d3.select("container").transition()
-			.duration(duration)
-			.attr("transform", "translate(" + x + "," + y + ")" + ")scale(" + scale + ")");
-		zoom.scale(scale);
-		zoom.translate([x,y]);
-	}
-
-	// ================ toggle children on click function =======================//
-	function click(d){
-		if (d.children){
-			d._children = d.children;
-			d.children = null;
-		}
-		else{
-			d.children = d._children;
-			d._children = null;
-		}
-
-		update(d);
-		centerNode(d);
-	}
-
-	// draw tree function (source: http://www.d3noob.org/2014/01/tree-diagrams-in-d3js_11.html)
-	function update(source){
-
-
-        var levelWidth = [1];
-
-        var childCount = function(level, n) {
-	 	// Compute the new height, function counts total children of root node and sets tree height accordingly.
-        // This prevents the layout looking squashed when new nodes are made visible or looking sparse when nodes are removed
-        // This makes the layout more consistent.
-            if (n.children && n.children.length > 0) {
-                if (levelWidth.length <= level + 1) levelWidth.push(0);
-
-                levelWidth[level + 1] += n.children.length;
-                n.children.forEach(function(d) {
-                    childCount(level + 1, d);
-                });
-            }
-        };
-        childCount(0, root);
-        var newHeight = d3.max(levelWidth) * 25; // 25 pixels per line  
-        tree = tree.size([newHeight, viewerWidth]);
-
-
-		// define tooltip (source: http://bl.ocks.org/Caged/6476579)
-		var tip = d3.tip()
-			.attr("id","treetooltip")
-			.attr("class", "tooltip")
-			.direction("n")
-			.offset(function(d){
-				if(d.name == "AMFI"){
-					return [0,50]
-				}
-				else{
-					return[0,-30]
-				}})
-			.html(function(d){
-				if (d.type == "parent"){
-					return "<strong> Total Books: </strong>85.210" 
-							+"<br>" +"<strong> Locations: </strong>6"
-							+"<br>" +"<strong> Members: </strong>54.000"
-
-				}
-				if (d.type =="book"){
-					return "<strong> Title: </strong>" + d.name + "<br>" +
-							"<strong> Copies: </strong>" + d.copies + "<br>" +
-							"<strong> Click to show circulation history! </strong>";
-				}
-			});
-
-		// compute the new tree layout
-		var nodes = tree.nodes(root);
-
-		// get target and source, store in links
-		var links = tree.links(nodes);
-
-		// normalize for fixed-depth of nodes
-		nodes.forEach(function(d) {
-			return d.y = (d.depth*1.5) * 120; 	
-		});
-
-		// update the nodes with their(new) id's
-		var node = container.selectAll("g.node")
-			.data(nodes, function(d) { return d.id || (d.id = ++i); });
-
-	  	// Enter any new nodes at the parents previous position.	
-		var nodeEnter = node.enter().append("g")
-			.attr("class", "node")
-			//apply transform function to display correctly on screen
-			.attr("transform", function(d) { return "translate(" + source.y0 + "," + source.x0 + ")"; })
-			.on("click", click);
-
-		// create circles for nodes
-		nodeEnter.append("circle")
-			.attr("r", function(d){return d.value})
-			.attr("stroke", "silver")
-			.attr("fill", function(d) { 
-				if (d._children){ 
-					return "#b0c0de"; 
-				}
-				else{ 
-					return "#ebeff6";
-				};
-			});
-
-		// append & enter node labels
-		nodeEnter.append("text")
-			.attr("class", "nodeLabels")
-			.attr("y", function(d){ 
-				if (d.type == "parent"){
-					return -50;
-				}	
-				else{
-					return 0;
-				}				
-			})
-			.attr("dx", "0.7em")
-			.attr("text-anchor", function(d){
-				if (d.type == "book"){
-					return "left";
-				}
-				else{
-					return "middle";
-				}
-			})
-			.style("font-family", "Courier")
-			.text(function(d) { return d.name; })
-			.style("fill-opacity", 1)
-			.on("mouseover", tip.show)
-			.on("mouseout", tip.hide)
-			.style("text-decoration", function(d){
-				if (d.type =="book"){
-					return "underline";
-				}
-			})
-			.style("font-size", function(d){
-				if (d.type =="book"){
-					return "8px";
-				}
-			})
-			.attr("id", function(d){
-				if(d.type=="book"){
-					return "clickBook";
-				}
-			})
-			.on("click", function(d){
-				var ids = d3.select(this).attr("id");
-				if ( ids == "clickBook"){
-					// if svg is already present remove
-					if (d3.select("#svg2")){
-						d3.select("#svg2").remove();
-					};
-					// and open random circulation history file
-					var random_num = Math.floor((Math.random() * 199) + 0);
-					var filename = "../Histories/hist" + String(random_num) + ".json";
-					queue()
-					.defer(d3.json, filename)
-					.awaitAll(drawGraph);
-				}
-			})				
-
-		// Transition nodes to their new position
-		var nodeUpdate = node.transition()
-			.duration(duration)
-			.attr("transform", function(d) { return "translate(" + d.y + "," + d.x + ")"});
-
-		nodeUpdate.select("circle")
-			.attr("r", function(d) {return d.value})
-			.style("fill", function(d) { 
-				if (d._children){ 
-					return "#b0c0de"; 
-				}
-				else{ 
-					return "#ebeff6";
-				};
-			})
-			.style("border", "3px dotted");
-
-		nodeUpdate.select("text")
-			.style("fill-opacity", 1);
-
-		// Transition existing nodes to the parent's new position.
-		var nodeExit = node.exit().transition()
-			.duration(duration)
-			.attr("transform", function(d) {return "translate(" + source.y + "," + source.x + ")"; })
-			.remove();
-
-		nodeExit.select("circle")
-			.attr("r", 1e-6);
-
-		nodeExit.select("text")
-			.style("fill-opacity", 1e-6);
-
-		// Update the links
-		var link = container.selectAll("path.link")
-			.data(links, function(d){ return d.target.id;});
-				
-		// enter any new links at the parents previous position
-		link.enter().insert("path","g")
-			.attr("class","link")
-			.attr("d", function(d){
-				var o = {x:source.x0, y:source.y0};
-				return diagonal({source: o, target: o});
-			});
-
-		// transition links to their new position
-		link.transition()
-			.duration(duration)
-			.attr("d", diagonal);
-
-		// transition existing node to the parent's new position.
-		link.exit().transition()
-			.duration(duration)
-			.attr("d", function(d){
-				var o = {x: source.x, y: source.y};
-				return diagonal({source: o, target: o});
-			})
-			.remove();
-		
-		// stash the old positions for transition
-		nodes.forEach(function(d) {
-			d.x0 = d.x;
-			d.y0 = d.y;
-		});
-
-		svg1.call(tip);
-	}
+// Define the zoom function for the zoomable tree
+function zoomed() {
+    container.attr("transform", "translate(" + d3.event.translate + ")scale(" + d3.event.scale + ")");
 }
 
-/*function showHide(d){
-	console.log("Show Hide!");
+function ready(error, results){
 
-	var svg = d3.select("#svg2");
+	var data = results;
 
-	var state = svg.style("visibility");
+	// define the top level of the tree/array
+	root = data[0];
+	root.x0 = viewerHeight /2;
+	root.y0 = viewerWidth/2;
 
-	var newVisibility;
+    // layout the tree initially and center on the root node.
+    tree.nodes(root).forEach(function(d) { click(d); });
 
-	if ( state == "hidden"){
-		newVisibility = "visible";
+	// draw tree
+	update(root);
+	centerNode(root);
+
+	//d3.select(self.frameElement).style("height", "500px");
+
+	Map();
+
+}
+
+// Function that centers on node when clicked upon
+function centerNode(source){
+	var scale = zoom.scale();
+	var x = -source.y0;
+	var y = -source.x0;
+	x = x * scale + viewerWidth / 2;
+	y = y * scale + viewerHeight / 2;
+	d3.select("container").transition()
+		.duration(duration)
+		.attr("transform", "translate(" + x + "," + y + ")" + ")scale(" + scale + ")");
+	zoom.scale(scale);
+	zoom.translate([x,y]);
+}
+
+// ================ toggle children on click function =======================//
+function click(d){
+	if (d.children){
+		d._children = d.children;
+		d.children = null;
 	}
-	else {
-		newVisibility = "hidden";
+	else{
+		d.children = d._children;
+		d._children = null;
 	}
 
-	svg.style("visibility", newVisibility);
+	update(d);
+	centerNode(d);
+}
 
-}*/
+// draw tree function (source: http://www.d3noob.org/2014/01/tree-diagrams-in-d3js_11.html)
+function update(source){
+
+
+    var levelWidth = [1];
+
+    var childCount = function(level, n) {
+ 	// Compute the new height, function counts total children of root node and sets tree height accordingly.
+    // This prevents the layout looking squashed when new nodes are made visible or looking sparse when nodes are removed
+    // This makes the layout more consistent.
+        if (n.children && n.children.length > 0) {
+            if (levelWidth.length <= level + 1) levelWidth.push(0);
+
+            levelWidth[level + 1] += n.children.length;
+            n.children.forEach(function(d) {
+                childCount(level + 1, d);
+            });
+        }
+    };
+    childCount(0, root);
+    var newHeight = d3.max(levelWidth) * 25; // 25 pixels per line  
+    tree = tree.size([newHeight, viewerWidth]);
+
+
+	// define tooltip (source: http://bl.ocks.org/Caged/6476579)
+	var tip = d3.tip()
+		.attr("id","treetooltip")
+		.attr("class", "tooltip")
+		.direction("n")
+		.offset(function(d){
+			if(d.name == "AMFI"){
+				return [0,50]
+			}
+			else{
+				return[0,-30]
+			}})
+		.html(function(d){
+			if (d.type == "parent"){
+				return "<strong> Total Books: </strong>85.210" 
+						+"<br>" +"<strong> Locations: </strong>6"
+						+"<br>" +"<strong> Members: </strong>54.000"
+
+			}
+			if (d.type =="book"){
+				return "<strong> Title: </strong>" + d.name + "<br>" +
+						"<strong> Copies: </strong>" + d.copies + "<br>" +
+						"<strong> Click to show circulation history! </strong>";
+			}
+		});
+
+	// compute the new tree layout
+	var nodes = tree.nodes(root);
+
+	// get target and source, store in links
+	var links = tree.links(nodes);
+
+	// normalize for fixed-depth of nodes
+	nodes.forEach(function(d) {
+		return d.y = (d.depth*1.5) * 120; 	
+	});
+
+	// update the nodes with their(new) id's
+	var node = container.selectAll("g.node")
+		.data(nodes, function(d) { return d.id || (d.id = ++i); });
+
+  	// Enter any new nodes at the parents previous position.	
+	var nodeEnter = node.enter().append("g")
+		.attr("class", "node")
+		//apply transform function to display correctly on screen
+		.attr("transform", function(d) { return "translate(" + source.y0 + "," + source.x0 + ")"; })
+		.on("click", click);
+
+	// create circles for nodes
+	nodeEnter.append("circle")
+		.attr("r", function(d){return d.value})
+		.attr("stroke", "silver")
+		.attr("fill", function(d) { 
+			if (d._children){ 
+				return "#b0c0de"; 
+			}
+			else{ 
+				return "#ebeff6";
+			};
+		});
+
+	// append & enter node labels
+	nodeEnter.append("text")
+		.attr("class", "nodeLabels")
+		.attr("y", function(d){ 
+			if (d.type == "parent"){
+				return -50;
+			}	
+			else{
+				return 0;
+			}				
+		})
+		.attr("dx", "0.7em")
+		.attr("text-anchor", function(d){
+			if (d.type == "book"){
+				return "left";
+			}
+			else{
+				return "middle";
+			}
+		})
+		.style("font-family", "Courier")
+		.text(function(d) { return d.name; })
+		.style("fill-opacity", 1)
+		.on("mouseover", tip.show)
+		.on("mouseout", tip.hide)
+		.style("text-decoration", function(d){
+			if (d.type =="book"){
+				return "underline";
+			}
+		})
+		.style("font-size", function(d){
+			if (d.type =="book"){
+				return "8px";
+			}
+		})
+		.attr("id", function(d){
+			if(d.type=="book"){
+				return "clickBook";
+			}
+		})
+		.on("click", function(d){
+			var ids = d3.select(this).attr("id");
+			if ( ids == "clickBook"){
+				// if svg is already present remove
+				if (d3.select("#svg2")){
+					d3.select("#svg2").remove();
+				};
+				// and open random circulation history file
+				var random_num = Math.floor((Math.random() * 199) + 0);
+				var filename = "../Histories/hist" + String(random_num) + ".json";
+				queue()
+				.defer(d3.json, filename)
+				.awaitAll(drawGraph);
+			}
+		})				
+
+	// Transition nodes to their new position
+	var nodeUpdate = node.transition()
+		.duration(duration)
+		.attr("transform", function(d) { return "translate(" + d.y + "," + d.x + ")"});
+
+	nodeUpdate.select("circle")
+		.attr("r", function(d) {return d.value})
+		.style("fill", function(d) { 
+			if (d._children){ 
+				return "#b0c0de"; 
+			}
+			else{ 
+				return "#ebeff6";
+			};
+		})
+		.style("border", "3px dotted");
+
+	nodeUpdate.select("text")
+		.style("fill-opacity", 1);
+
+	// Transition existing nodes to the parent's new position.
+	var nodeExit = node.exit().transition()
+		.duration(duration)
+		.attr("transform", function(d) {return "translate(" + source.y + "," + source.x + ")"; })
+		.remove();
+
+	nodeExit.select("circle")
+		.attr("r", 1e-6);
+
+	nodeExit.select("text")
+		.style("fill-opacity", 1e-6);
+
+	// Update the links
+	var link = container.selectAll("path.link")
+		.data(links, function(d){ return d.target.id;});
+			
+	// enter any new links at the parents previous position
+	link.enter().insert("path","g")
+		.attr("class","link")
+		.attr("d", function(d){
+			var o = {x:source.x0, y:source.y0};
+			return diagonal({source: o, target: o});
+		});
+
+	// transition links to their new position
+	link.transition()
+		.duration(duration)
+		.attr("d", diagonal);
+
+	// transition existing node to the parent's new position.
+	link.exit().transition()
+		.duration(duration)
+		.attr("d", function(d){
+			var o = {x: source.x, y: source.y};
+			return diagonal({source: o, target: o});
+		})
+		.remove();
+	
+	// stash the old positions for transition
+	nodes.forEach(function(d) {
+		d.x0 = d.x;
+		d.y0 = d.y;
+	});
+
+	svg1.call(tip);
+}
 
 function drawGraph(error, results){
 	// Load random data

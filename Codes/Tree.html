@@ -35,6 +35,61 @@
 
 		<footer>
 			&#169; Sofia Tilon 2015</footer>
+
+
+		<script>
+
+	//=========== Generate the tree diagram =================//
+	var margin = {top: 120, right: 200, bottom: 0, left: 200},
+	 		width = 1000 - margin.right - margin.left,
+	 		height = 450 - margin.top - margin.bottom;
+
+	var i = 0,
+		duration = 750,
+		root;
+
+	var viewerWidth = width;
+	var viewerHeight = height;
+
+	// define zoom variable
+	var zoom  = d3.behavior.zoom()
+		.scaleExtent([-10,10])
+		.on("zoom", zoomed);
+
+	// make tree canvas
+	var tree = d3.layout.tree()
+		.size([viewerHeight, viewerWidth]);
+
+	// create diagonals to draw links
+	var diagonal = d3.svg.diagonal()
+		.projection(function(d) { return [d.y, d.x]; });
+
+	// make svg canvas
+	var svg1 = d3.select("#treemap").append("svg")
+		.attr("id","svg1")
+		.attr("width", viewerWidth + margin.right + margin.left)
+		.attr("height", viewerHeight + margin.top + margin.bottom)
+		.call(zoom)
+		.append("g")
+		.attr("transform","translate(" + margin.left + "," + margin.top + ")")			
+	
+	// append g element to store all nodes and links in
+	var container = svg1.append("g")
+		.attr("transform", "translate(" + margin.left + "," + margin.top + ")")
+
+	var rect = container.append("rect")
+		.attr("width", viewerWidth + margin.right + margin.left)
+	    .attr("height", viewerHeight + margin.top + margin.bottom)
+	    .attr("x", 0 - margin.left)
+	    .attr("y", 0 - margin.bottom - margin.top)
+	    .style("fill", "none")
+	    .style("pointer-events", "all");
+
+	queue()
+		.defer(d3.json, "../Data/tree.json")
+		.awaitAll(ready);
+
+		</script>
 	</body>
 
 </html>
