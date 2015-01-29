@@ -86,8 +86,8 @@ window.onload = function(){
 		//=========== Generate the tree diagram =================//
 		var margin = {top: 120, right: 200, bottom: 0, left: 200},
 		 		width = 1000 - margin.right - margin.left,
-		 		height = 600 - margin.top - margin.bottom;
-		 		
+		 		height = 450 - margin.top - margin.bottom;
+
 		var i = 0,
 			duration = 750,
 			root;
@@ -97,7 +97,7 @@ window.onload = function(){
 
 		// define zoom variable
 		var zoom  = d3.behavior.zoom()
-			.scaleExtent([1,5])
+			.scaleExtent([-10,10])
 			.on("zoom", zoomed);
 
 		// make tree canvas
@@ -106,7 +106,7 @@ window.onload = function(){
 
 		// create diagonals to draw links
 		var diagonal = d3.svg.diagonal()
-			.projection(function(d) { return [d.x, d.y]; });
+			.projection(function(d) { return [d.y, d.x]; });
 
 		// make svg canvas
 		var svg1 = d3.select("#treemap").append("svg")
@@ -139,9 +139,7 @@ window.onload = function(){
 
 		// draw tree
 		update(root);
-		console.log(root.y0)
-		console.log(root.x0)
-		//centerNode(root);
+		centerNode(root);
 
 		d3.select(self.frameElement).style("height", "500px");
 
@@ -150,22 +148,42 @@ window.onload = function(){
 		    container.attr("transform", "translate(" + d3.event.translate + ")scale(" + d3.event.scale + ")");
 		}
 
-/*		// Function that centers on node when clicked upon
+		// Function that centers on node when clicked upon
 		function centerNode(source){
 			var scale = zoom.scale();
-			var x = source.y0;
-			var y = source.x0;
-			x = viewerWidth / 2;
-			y = viewerHeight / 2;
+			var x = -source.y0;
+			var y = -source.x0;
+			x = x * scale + viewerWidth / 2;
+			y = y * scale + viewerHeight / 2;
 			d3.select("container").transition()
 				.duration(duration)
 				.attr("transform", "translate(" + x + "," + y + ")" + ")scale(" + scale + ")");
 			zoom.scale(scale);
 			zoom.translate([x,y]);
-		}*/
+		}
 
 		// draw tree function (source: http://www.d3noob.org/2014/01/tree-diagrams-in-d3js_11.html)
 		function update(source){
+
+			 // Compute the new height, function counts total children of root node and sets tree height accordingly.
+	        // This prevents the layout looking squashed when new nodes are made visible or looking sparse when nodes are removed
+	        // This makes the layout more consistent.
+	        var levelWidth = [1];
+	        var childCount = function(level, n) {
+
+	            if (n.children && n.children.length > 0) {
+	                if (levelWidth.length <= level + 1) levelWidth.push(0);
+
+	                levelWidth[level + 1] += n.children.length;
+	                n.children.forEach(function(d) {
+	                    childCount(level + 1, d);
+	                });
+	            }
+	        };
+	        childCount(0, root);
+	        var newHeight = d3.max(levelWidth) * 25; // 25 pixels per line  
+	        tree = tree.size([newHeight, viewerWidth]);
+
 
 			// define tooltip (source: http://bl.ocks.org/Caged/6476579)
 			var tip = d3.tip()
@@ -185,26 +203,27 @@ window.onload = function(){
 					else{
 						return[0,-30]
 					}})
-				.html("tooltip"/*function(d){
-					if (d.object == "parent"){
-						return "<strong> Total Books: </strong>" + d.total
+				.html(function(d){
+					if (d.type == "parent"){
+						return "<strong> Total Books: </strong>85.210" 
 								+"<br>" +"<strong> Locations: </strong>6"
 								+"<br>" +"<strong> Members: </strong>54.000"
 
 					}
-					if(d.object == "Category") {
+					if(d.type == "Category") {
 						return "<strong> Total Books: </strong>" + d.value;
 					};
-					if (d.object == "Location"){
+					if (d.type == "Location"){
 						return "<strong>" + d.name +"</strong>" + "<br>"+ 
 								"<strong>Address: </strong>" + d.location + "<br>" 
 								+ "<strong>Total Books: </strong>" + d.value;
 					}
-					if (d.object =="Book"){
-						return "<strong> Copies: </strong>" + d.copies + "<br>" +
+					if (d.type =="book"){
+						return "<strong> Title: </strong>" + d.name + "<br>" +
+								"<strong> Copies: </strong>" + d.copies + "<br>" +
 								"<strong> Click to show circulation history! </strong>";
 					}
-				}*/);
+				});
 
 			// compute the new tree layout
 			var nodes = tree.nodes(root);
@@ -213,7 +232,14 @@ window.onload = function(){
 			var links = tree.links(nodes);
 
 			// normalize for fixed-depth of nodes
-			nodes.forEach(function(d) { d.y = d.depth * 300; });
+			nodes.forEach(function(d) {
+					//if(d.type == "book"){
+					//	return d.y = (d.depth*1.5) * 80; 
+					//}
+					//else{
+						return d.y = (d.depth*1.5) * 120; 	
+					//}
+				});
 
 				// update the nodes with their(new) id's
 				var node = container.selectAll("g.node")
@@ -223,7 +249,7 @@ window.onload = function(){
 				var nodeEnter = node.enter().append("g")
 					.attr("class", "node")
 					//apply transform function to display correctly on screen
-					.attr("transform", function(d) { return "translate(" + source.x0 + "," + source.y0 + ")"; })
+					.attr("transform", function(d) { return "translate(" + source.y0 + "," + source.x0 + ")"; })
 					.on("click", click);
 
 			// create circles for nodes
@@ -240,19 +266,23 @@ window.onload = function(){
 						return -50;
 					}	
 					else{
-						return 10;
-					}
-					if (d.type == "book"){
-						return 200;
-					}					
+						return 0;
+					}				
 				})
-				.attr("dy", "0.7em")
-				.attr("text-anchor", "middle")
-				.attr("transform", function(d){
+				.attr("dx", "0.7em")
+				.attr("text-anchor", function(d){
+					if (d.type == "book"){
+						return "left";
+					}
+					else{
+						return "middle";
+					}
+				})
+/*				.attr("transform", function(d){
 					if (d.type =="book"){
 						return "rotate(-90)";
 					}
-				})
+				})*/
 				.style("font-family", "Courier")
 				.text(function(d) { return d.name; })
 				.style("fill-opacity", 1)
@@ -279,7 +309,7 @@ window.onload = function(){
 						return showHide();
 					}
 				})
-				.call(wrap, [0]);	
+				//.call(wrap, [0]);	
 /*
 			// apply wrap function only on category labels
 			var nodeLabels = d3.selectAll(".nodeLabels")
@@ -296,7 +326,7 @@ window.onload = function(){
 			// Transition nodes to their new position
 			var nodeUpdate = node.transition()
 				.duration(duration)
-				.attr("transform", function(d) { return "translate(" + d.x + "," + d.y + ")"});
+				.attr("transform", function(d) { return "translate(" + d.y + "," + d.x + ")"});
 
 			nodeUpdate.select("circle")
 				.attr("r", function(d) {return d.value})
@@ -309,7 +339,7 @@ window.onload = function(){
 			// Transition existing nodes to the parent's new position.
 			var nodeExit = node.exit().transition()
 				.duration(duration)
-				.attr("transform", function(d) {return "translate(" + source.x + "," + source.y + ")"; })
+				.attr("transform", function(d) {return "translate(" + source.y + "," + source.x + ")"; })
 				.remove();
 
 			nodeExit.select("circle")
@@ -320,7 +350,8 @@ window.onload = function(){
 
 			// Update the links
 			var link = container.selectAll("path.link")
-				.data(links, function(d) { return d.target.id; });
+				.data(links, function(d){ return d.target.id;});
+					
 
 			// enter any new links at the parents previous position
 			link.enter().insert("path","g")
@@ -364,28 +395,17 @@ window.onload = function(){
 				d._children = null;
 			}
 
-			// If the node has a parent, then collapse its child nodes
-			  // except for this clicked node.
-		  if (d.type ==  "category") {
-		  	console.log(d.type)
-		    /*d.children.forEach(function(element) {
-		      if (d !== element) {
-		        collapse(element);
-		      }
-		    });*/
-		  }
-
 			update(d);
 			centerNode(d);
 		}
 
+		Map();
 		//================ Draw graph =============================//
 		drawGraph(dataBook);
 
 		//================ Draw table ============================//
 		tabBook(dataBook,["User", "Date", "Time", "Title", "Barcode","Action","DueDate","Location"]);
-
-		Map();
+	
 		}
 	}
 
@@ -393,7 +413,7 @@ window.onload = function(){
 
 // Drag and Zoom http://bl.ocks.org/mbostock/6123708
 // From http://bl.ocks.org/mbostock/7555321
-function wrap(text, width) {
+/*function wrap(text, width) {
 	if (text.id != "clickBook"){
 
 		text.each(function() {
@@ -418,7 +438,7 @@ function wrap(text, width) {
 		    }
 		});
   	};
-}
+}*/
 
 function showHide(d){
 	console.log("Show Hide!");
@@ -532,19 +552,19 @@ function drawGraph(data){
 		if ((d.Action == "IntIBL") || (d.Action == "Web renewal") || (d.Action == "Loan")){
 			d.yAxis = d.User.replace("CIRC","");
 		}
-		if(d.Action == "Regular return"){
+		if(d.Action == "Regular return"){	
 			d.yAxis = d.Location;
 		}
 	});
 
-	data.forEach(function(d){
+/*	data.forEach(function(d){
 		for (var i = 0; i<LocList.length; i++){
 			if (d.yAxis ==LocList[i]){
 				d.LocID == i;
 			}
 
 		}
-	})
+	})*/
 
 	// set the domain of x
 	x.domain(d3.extent(data, function(d) { return d.xAxis}));
@@ -599,28 +619,39 @@ function drawGraph(data){
 	}
 
     // add color gradient
-    var colorlist = ["#66B866", "green", "yellow", "orange", "blue", "grey", "#E6B85C"];
-    var ticklist = [195, 0, 0, 105, 0, 0, 15];
+    var colorlist = ["#66B866", "#b866b8", "#66B8B8", "#b8b866", "#668fb8", "#b86666", "#E6B85C"];
+    var ticklist = [195, 165, 135, 105, 75, 45, 15];
 
     // add lines for each datapoint
     var lines = svg.append("g").attr("class", "plot").selectAll("line");
+
 	for (var h = 0; h < x_line.length-1; h=h+2){ 
 
     	//append line
     	var line = lines.data([1])
 			.enter().append("line");
 
-	    line.each(function(d){
-					
+	    line.each(function(d){			
+
 			d3.select(this)
 				// set coordinates of line
-				.attr("id", "line" + h)
 				.attr({x1 : x_line[h],
 					y1 : y_line[h],
 					x2 : x_line[h+1],
 					y2 : y_line[h+1]
 				})
-				
+				// append class attributes
+				.attr("class", function(d){
+					for (var h = 0; h < ticklist.length; h++){
+						if (d3.select(this).attr("y1") == ticklist[h]){
+							var class1 = LocList[h];
+						}
+						if (d3.select(this).attr("y2") == ticklist[h]){
+							var class2 = LocList[h];
+						}						
+					}
+					return "'" + class1 + "-" + class2 + "'";
+				})
 				// set styles for line segment
 				.style("stroke", function(d){
 					for (var t = 0; t <colorlist.length; t++){
@@ -661,7 +692,44 @@ function drawGraph(data){
 						}
 					};
 				})
-			
+		});
+	}
+
+	// add another set of non visible lines that respond to mouse events
+    var lines = svg.append("g").attr("class", "plot").selectAll("line");
+
+	for (var h = 0; h < x_line.length-1; h=h+2){ 
+
+    	//append line
+    	var line = lines.data([1])
+			.enter().append("line");
+
+	    line.each(function(d){			
+
+			d3.select(this)
+				// set coordinates of line
+				.attr({x1 : x_line[h],
+					y1 : y_line[h],
+					x2 : x_line[h+1],
+					y2 : y_line[h+1]
+				})
+				// append class attributes
+				.attr("class", function(d){
+					for (var h = 0; h < ticklist.length; h++){
+						if (d3.select(this).attr("y1") == ticklist[h]){
+							var class1 = LocList[h];
+						}
+						if (d3.select(this).attr("y2") == ticklist[h]){
+							var class2 = LocList[h];
+						}						
+					}
+					return "'" + class1 + "-" + class2 + "'";
+				})
+				// set styles for line segment
+				.style("stroke", "transparent")
+				.style("stroke-width", 9)
+				.on("mouseover", mapLines)
+				.on("mouseout", back2Normal)
 		});
 	}
 
@@ -733,6 +801,43 @@ function ShowHideTable(d){
 }
 
 function Map(d){
+	// define tooltip
+	var tip = d3.tip()
+				.attr("id","maptooltip")
+				.attr("class", "tooltip")
+				.direction("n")
+				.offset([-10,0])
+				.html(function(d){
+				if (d == "AMFI"){
+					return "<strong> Koetsier-Montaignehuis<br>" + 
+							"(Amsterdam Fashion Institute)<br>Address: </strong>Mauritskade 11 <br>"
+							+ "1091 GC Amsterdam <br><strong> Tel: </strong> 020-595 4560" 
+				}
+				if (d == "DML"){
+					return "<strong> Dr. Meurenhuis<br>Address: </strong>Dokter Meurenlaan 8<br>"
+							+ "1067 SM Amsterdam <br><strong> Tel: </strong> 020-595 3422" 
+				}
+				if (d == "FB"){
+					return "<strong> Fraijlemaborg<br>Address: </strong>Fraijlemaborg 133<br>"
+							+ "1102 CV Amsterdam <br><strong> Tel: </strong> 020-523 6046" 
+				}
+				if (d == "KSH"){
+					return "<strong> Köhnstammhuis <br>Address: </strong>Wibautstraat 2-4<br>"
+							+ "1091 GM Amsterdam <br><strong> Tel: </strong> 020-599 5530" 
+				}
+				if (d == "LWB"){
+					return "<strong> Leeuwenburg <br>Address: </strong>Weesperzijde 190<br>"
+							+ "1097 DZ Amsterdam <br><strong> Tel: </strong> 020-595 1133" 
+				}
+				if (d == "TBW"){
+					return "<strong> Nicolaes Tulphuis <br>Address: </strong>Tafelbergweg 51<br>"
+							+ "1000 CN Amsterdam <br><strong> Tel: </strong> 020-595 4237" 
+				}
+				if (d == "Student"){
+					return "<strong> Student </strong>"
+				}
+				});
+
 	var width = 400;
 	var height = 400;
 
@@ -761,5 +866,155 @@ function Map(d){
                 .attr("width", width)
                 .attr("height", height);
 
+    var colorlist = ["#66B866", "#b866b8", "#66B8B8", "#b8b866", "#668fb8", "#b86666", "#E6B85C"];
+    var LocList = ["AMFI", "DML", "FB", "KSH", "LWB", "TBW", "Student"];
+    var loc_x = [220, 100, 265, 212, 225, 265, 200];
+    var loc_y = [165, 150, 280, 168, 188, 300, 60];
+
+    // draw line conenction the locations
+	for (var i = 0; i < loc_x.length; i++){
+	    for (var j = 0; j < loc_x.length; j++){
+		    var line_loc = svg.append("line")
+		    	.attr("class", "locationLines")
+		    	.attr("x1", loc_x[i])
+		    	.attr("y1", loc_y[i])
+		    	.attr("x2", loc_x[j])
+		    	.attr("y2", loc_y[j])
+		    	.attr("id", function(d){
+		    			return LocList[i] + "-" + LocList[j]; 
+		    	})
+		    	.style("stroke", "black")
+		    	.style("stroke-width", "1px")
+		    	.style("visibility", "hidden")
+    	}
+	}
+
+	// draw circles on locations
+    var circle_loc = svg.selectAll("circle")
+        .data(LocList)
+    	.enter().append("circle")
+    	.attr("class","locationCircles")
+        .attr("r", 3.5)
+        .attr("cx", function(d, i) { return loc_x[i]; })
+        .attr("cy", function(d, i) { return loc_y[i]; })
+    	.attr("id", function(d,i){
+			return LocList[i] + "-" + LocList[i]; 
+		})
+        .attr("fill", function(d, i){ return colorlist[i]; })
+        .on("mouseover", tip.show)
+        .on("mouseout", tip.hide);
+
+    svg.call(tip);
 }
 
+function mapLines(d){
+	
+	var line_class = d3.select(this).attr("class");
+	line_class = line_class.replace("'", "");
+	line_class = line_class.replace("'", "");
+
+	var locationCircles = d3.selectAll(".locationCircles");
+	var locationLines = d3.selectAll(".locationLines");
+
+	console.log(locationCircles);
+
+	// put id's in list
+	var locationLinesId = []
+	for (var t = 0; t < locationLines[0].length; t++){
+		locationLinesId.push(d3.select(locationLines[0][t]).attr("id"));
+	}
+
+	var locationCirclesId = []
+	for (var t = 0; t < locationCircles[0].length; t++){
+		locationCirclesId.push(d3.select(locationCircles[0][t]).attr("id"));
+	}
+
+	// check if equal
+	for (var t = 0; t < locationCirclesId.length; t++){
+	
+		if (line_class == locationCirclesId[t]){
+			console.log("yes circle")
+			var circle_select = locationCircles[0][t];
+			adjustCircle(circle_select);
+		}
+		else{
+			for( var h = 0; h <locationLinesId.length; h++){
+				if(line_class == locationLinesId[h]){
+					console.log("yes line")
+					var line_select = locationLines[0][h];
+					adjustLine(line_select);
+				}
+			}
+		}
+	}
+}
+
+function adjustLine(d){
+	console.log("adjust line!")
+	var line = d3.select(d);
+	console.log(line)
+	var state = line.style("visibility");
+	var newVisibility;
+
+	if ( state == "hidden"){
+		newVisibility = "visible";
+	}
+	else {
+		newVisibility = "hidden";
+	}
+
+	line.style("visibility", newVisibility);
+
+}
+
+function adjustCircle(d){
+	console.log("Show Hide Circle!");
+	var circle = d3.select(d);
+	console.log(circle);
+
+	circle.attr("r", 7);
+}
+	
+function back2Normal(d){
+	var locationCircles = d3.selectAll(".locationCircles");
+	for (var t = 0; t < locationCircles[0].length; t++){
+		var radius = d3.select(locationCircles[0][t]).attr("r");
+		if (radius != 2.5){
+			d3.select(locationCircles[0][t]).attr("r", 2.5);
+		}
+	}
+
+	var locationLines = d3.selectAll(".locationLines");
+	for (var t = 0; t < locationLines[0].length; t++){
+		var visible = d3.select(locationLines[0][t]).style("visibility");
+		if (visible == "visible"){
+			d3.select(locationLines[0][t]).style("visibility", "hidden");
+		}
+	}
+
+}
+
+/*		(function repeat(){
+			circle.transition()
+				.duration(150)
+				.attr("r", 5)
+				.transition()
+				.duration(150)
+				.attr("r", 2.5)
+				.each("end", repeat)			
+		})()*/
+
+/*
+	var state = circle.style("visibility");
+	var newVisibility;
+
+	if ( state == "hidden"){
+		newVisibility = "visible";
+	}
+	else {
+		newVisibility = "hidden";
+	}
+
+	circle.style("visibility", newVisibility);*/
+
+//}

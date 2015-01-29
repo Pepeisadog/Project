@@ -98,11 +98,13 @@ g.plot line{
 	word-break: keep all;
 }
 
-#svg1,
-#svg2{
+#svg1{
 	display: block;
 	margin: auto;
 	padding: 30px;
+}
+#svg2{
+	padding: 50px;
 }
 
 #showtext,
@@ -115,6 +117,7 @@ g.plot line{
 	text-align: center;
 }
 
+.tooltip,
 #tooltip {
   line-height: 1;
   padding: 12px;
